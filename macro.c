@@ -28,12 +28,15 @@ int word_length(char *str, int start_idx);
 
 int save_lines_in_macro_table(FILE *file, Macro_Table **table);
 
-int main(int argc, char* argv[]) {
+int check_macro_name(char *name, Macro_Table **table);
+
+int preprocess(char *file) {
 	
-	FILE *file = fopen(argv[1], "r");
+	FILE *file = fopen(file, "r");
 	FILE *to = fopen("file.am", "w+");
 	char line[80];
-	int i = 0, end, macro_name_len, cur_len, extra;
+	char *macro_name = NULL;
+	int i = 0, end, macro_name_len, cur_len, extra, result = 0;
 	Macro_Table *table = NULL, *head = NULL;
 	if (!file) {
 		printf("Error: could not open file.\n");
@@ -82,6 +85,14 @@ int main(int argc, char* argv[]) {
 				break;
 			}
 
+			macro_name = (char *)malloc(macro_name_len * sizeof(char));
+			strncpy(macro_name, line+i, macro_name_len);
+			result = check_macro_name(macro_name, &table);
+			if (result == 1) {
+				printf("Error: Macro name already exists.\n");
+				break;
+			}
+
 			/* Allocating memory for tables attributes. */
 			cur_len += end;
 			table->value = (char *)malloc(sizeof(char));
@@ -90,6 +101,7 @@ int main(int argc, char* argv[]) {
 
 			if (!(table->value)) {
 				printf("Error: memory allocation failed.");
+				free(macro_name);
 				free(head);
 				free(table);
 				fclose(file);
@@ -98,6 +110,7 @@ int main(int argc, char* argv[]) {
 
 			if (!(table->name)) {
 				printf("Error: memory allocation failed.");
+				free(macro_name);
 				free(head);
 				free(table->value);
 				free(table);
@@ -107,6 +120,7 @@ int main(int argc, char* argv[]) {
 
 			if(!(table->next)) {
 				printf("Error: memory allocation failed.");
+				free(macro_name);
 				free(head);
 				free(table->value);
 				free(table->name);
@@ -115,9 +129,12 @@ int main(int argc, char* argv[]) {
 				fclose(to);
 			}
 
-			strncpy(table->name, line+i, macro_name_len);
-			
+			/* By this point we know the macro name does not appear in the macro table, so we add it. */
+			strcpy(table->name, macro_name);
 
+			/* pointing to the next node in the list. */
+			table = table->next;
+			free(macro_name);
 		}
 	}
 	fclose(file);
@@ -176,6 +193,18 @@ int save_lines_in_macro_table(FILE *file, Macro_Table **table) {
 	/* does not have extraneous text after "endmcro", returning 1. */
 	return 1;
 
+}
+
+int check_macro_name(char *name, Macro_Table **head) {
+	Macro_Table *table = *head;
+
+	/* going over the list, checking if the name already exists. */
+	while (table != NULL) {
+		if (strcmp(table->name, name) == 0) return 1;
+	}
+
+	/* returning 0 if the name does not already exist in the list. */
+	return 0;
 }
 
 	
