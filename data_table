@@ -1,1 +1,220 @@
+#include <stdio.h>
+
+#typedef struct Data_Table{
+    int value;
+    char[] data;
+    Data_Table next;
+}Data_Table;
+
+Data_Table data_head;
+int counter;
+
+int add_string_data(file string s1, int counter, int line){//adds labels of .string type
+    Data_Table* curr = &date_head;
+    for(i = 0; i < counter - 1; i++){ //going to the next empty node
+        curr = &(curr->next);
+    }
+
+    int i = 0;
+    while(i < 32 && *(st + i) != '\0' && *(st + i) != ':' && *(st + i) != ' ' && *(st + i) != '\t' && *(st + i) != '\n'){
+        if((*(st + i) > 57 && *(st + i) < 65) || *(st + i) < 48 || (*(st + i) > 90 && *(st + i) < 97) || *(st + i) > 122)
+            printf("///Error in line %d: label name can only contain numbers and English letters (lower and upper case)///", line);
+            return 0;
+        i++;
+    }
+    if(*(st + i) == ':'){
+        i += 2;
+        SKIP_WHITE(st, i);
+        if(strncmp(st+i, ".string", 7) == 0){
+            i += 7;
+            if(*(st + i) != '\t' && *(st + i) != ' '){
+                printf("///Error in line %d: no seperation bitween ':' and .string///", line);
+                return 0;
+            }
+            SKIP_WHITE(st, i);
+            if(*(st + i) != '"'){
+                printf("///Error in line %d: no quotation marks in the beginning of the string///", line);
+                return 0;
+            }
+            i++;
+            while(*(st + i) != '"' && *(st + i) != '\n'){
+                if(*(st + i) <= 31 || *(st + i) >= 128){
+                    printf("///Error in line %d: non printable char in string///", line);
+                    return 0;
+                }
+                i++;
+            }
+            if(*(st + i) == '\n'){
+                printf("///Error in line %d: no quotation marks in the end of the string///", line);
+                return 0;
+            }
+            i++;
+            SKIP_WHITE(st, i);
+            if(*(st + i) != '\n'){
+                printf("///Error in line %d: to many operands in the declaration of .string///", line);
+                return 0;
+            }
+            Data_Table new;
+            new.value = line + 100;
+            char[] new_data = char[32];
+            int j = 0;
+            while(*(st + j) != ':'){
+                new_data[j] = *(st + j);
+            }
+            new.data = new_data;
+            new.next = NULL;
+            if(counter == 0)
+                data_head = new_data;
+            else
+                curr->next = new_data;
+            counter++;
+            return 1;
+        }
+
+    }
+    else if(i == 32){
+        printf("///Error in line %d: label longer then the maximum length of 32///", line);
+    }
+    else{
+        printf("///Error in line %d: no ':' in the declaration of the label", line);
+    }
+}
+
+
+int add_data_data(file string s1, int counter, int line){//adds labels of .data type
+    Data_Table* curr = &date_head;
+    for(i = 0; i < counter - 1; i++){ //going to the next empty node
+        curr = &(curr->next);
+    }
+
+    int i = 0;
+    while(i < 32 && *(st + i) != '\0' && *(st + i) != ':' && *(st + i) != ' ' && *(st + i) != '\t' && *(st + i) != '\n'){
+        if((*(st + i) > 57 && *(st + i) < 65) || *(st + i) < 48 || (*(st + i) > 90 && *(st + i) < 97) || *(st + i) > 122)
+            printf("///Error in line %d: label name can only contain numbers and English letters (lower and upper case)///", line);
+            return 0;
+        i++;
+    }
+    if(*(st + i) == ':'){
+        i += 2;
+        SKIP_WHITE(st, i);
+        if(strncmp(st + i, ".data", 5) == 0){
+            i += 5;
+            if(*(st + i) != '\t' && *(st + i) != ' '){
+                 printf("///Error in line %d: no seperation bitween ':' and .data///", line);
+                return 0;
+            }
+            SKIP_WHITE(st, i);
+            while(*(st + i) != '\n'){
+                if(*(st + i) == '-'){
+                    if(*(st + (i + 1)) > 57 || *(st + (i + 1)) < 48){
+                        printf("///Error in line %d: operand is not of type int///", line);
+                        return 0;
+                    }
+                    i++;
+                }
+                while(*(st + i) != ' ' && *(st + i) != ',' && *(st + i) != '\t')
+                    if(*(st + i) > 57 || *(st + i) < 48){
+                        printf("///Error in line %d: operand is not of type int///", line);
+                        return 0;
+                    }
+                SKIP_WHITE(st, i);
+                if(*(st + i) != ','){
+                    printf("///Error in line %d: two operands not seperated by ','///", line);
+                    return 0;
+                }
+                i++;
+                SKIP_WHITE(st, i);
+            }
+            Data_Table new;
+            new.value = line + 100;
+            char[] new_data = char[32];
+            int j = 0;
+            while(*(st + j) != ':'){
+                new_data[j] = *(st + j);
+            }
+            new.data = new_data;
+            new.next = NULL;
+            if(counter == 0)
+                data_head = new_data;
+            else
+                curr->next = new_data;
+            counter++;
+            return 1;
+        }
+
+    }
+    else if(i == 32){
+        printf("///Error in line %d: label longer then the maximum length of 32///", line);
+    }
+    else{
+        printf("///Error in line %d: no ':' in the declaration of the label", line);
+    }
+}
+
+
+int is_value_of_command(char* st, int line){
+    int i = 0;
+    while(i < 32 && *(st + i) != '\0' && *(st + i) != ':' && *(st + i) != ' ' && *(st + i) != '\t' && *(st + i) != '\n'){
+        if((*(st + i) > 57 && *(st + i) < 65) || *(st + i) < 48 || (*(st + i) > 90 && *(st + i) < 97) || *(st + i) > 122)
+            printf("///Error in line %d: label name can only contain numbers and English letters (lower and upper case)///", line);
+            return 0;
+        i++;
+    }
+    if(*(st + i) == ':'){
+        i += 2;
+        SKIP_WHITE(st, i);
+        
+        //no operand commands//
+        else if(strncmp(st + 1, "stop", 4) == 0){
+            i += 4;//go to the char after the command
+            SKIP_WHITE(st, i);
+            if(*(st + i) != '\n'){//if there are chars that arent white after the word
+                printf("///Error in line %d: operand found in an operand-less command", line);
+                return 0;//wrong syntax
+            }
+            return 1;
+        }
+
+        else if(strncmp(st + 1, "rts", 3) == 0){
+            i += 3;//go to the char after the command
+            SKIP_WHITE(st, i);
+            if(*(st + i) != '\n'){//if there are chars that arent white after the word
+                printf("///Error in line %d: operand found in an operand-less command", line);
+                return 0;//wrong syntax
+            }
+            return 1;
+        }
+
+        //one operand commands//
+        else if(strncmp(st + 1, "not", 3) == 0){ //3 and 5 
+            i += 3;//go two chars after the command
+            if(*(st + i) != '\t' && *(st + i) != ' ')//check if there is a space aftre the command
+                return 0;
+            SKIP_WHITE(st, i);
+            if(*(st + i) != '@' || *(st + (i + 1)) != 'r' || *(st + (i + 2)) > '7' ||  *(st + (i + 2)) < '0') //check if operand is not a legal register
+                if()
+            i += 2;
+            SKIP_WHITE(st, i);
+            if(*(st + i) != '\n')//if there are chars that arent white after the word
+                return 0;//wrong syntax
+            return 1;
+        }
+
+        else{
+            printf("///Error in line %d: undefined command", line);
+            
+        }
+
+    }
+    else if(i == 32){
+        printf("///Error in line %d: label longer then the maximum length of 32///", line);
+    }
+    else{
+        printf("///Error in line %d: no ':' in the declaration of the label", line);
+    }
+
+    
+        
+}
+
 
