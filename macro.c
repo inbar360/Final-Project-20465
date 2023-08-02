@@ -81,7 +81,6 @@ int preprocess(FILE *file, char *name) {
 			SKIP_WHITE(line, i);
 			
 			macro_name_len = word_length(line+i, i);
-			printf("the macro len for SOME reason is: %d\n", macro_name_len);
 			extra = i;
 			SKIP_NON_WHITE(line, extra);
 			/* checking if there are other characters after mcro + macro name. */
@@ -99,10 +98,8 @@ int preprocess(FILE *file, char *name) {
 				REMOVE_FILE(to, name_of_new_file);
 				return -1;
 			}
-			memset(macro_name, '\0', macro_name_len);
-			printf("%d %d\n", *(line+i+2), *(line+i+3));
+			memset(macro_name, '\0', strlen(macro_name));
 			strncpy(macro_name, line+i, macro_name_len);
-			printf("it should be: \"%s\"\n", macro_name);
 			result = check_macro_name(macro_name, head);
 			if (result == 1) {
 				printf("Error: Macro name already exists.\n");
@@ -168,7 +165,6 @@ int preprocess(FILE *file, char *name) {
 			end = i;
 			SKIP_NON_WHITE(line, end);
 			macro_name = (char *)malloc((end-i) * sizeof(char));
-			printf("that is the problem, the length is: %d\n", end-i);
 			if (!macro_name) {
 				printf("Error: Memory allocation failed.\n");
 				free(head);
@@ -177,7 +173,6 @@ int preprocess(FILE *file, char *name) {
 				return -1;
 			}
 			strncpy(macro_name, (line+i), end-i);
-			printf("the macro_name of that length is: \"%s\"\n", macro_name);
 			if ((macro_val = get_macro_val(macro_name, head)) != NULL) {
 				fputs(macro_val, to);
 			}
@@ -185,7 +180,6 @@ int preprocess(FILE *file, char *name) {
 			else {
 				fputs(line, to);
 			}
-			printf("is macro_val NULL? %d\n", macro_val == NULL);
 			macro_name = NULL;
 			free(macro_name);
 		}
@@ -198,9 +192,7 @@ int preprocess(FILE *file, char *name) {
 
 int word_length(char *str, int start_idx) {
 	int i;
-	for(i = 0; str[i] && !IS_WHITE(str, i) && !END_CHAR(str, i); ++i) {
-		printf("is it 0? %d ", str[i]);
-	}
+	for(i = 0; str[i] && !IS_WHITE(str, i) && !END_CHAR(str, i); ++i);
 	printf("\n");
 	return i;
 }
@@ -249,7 +241,6 @@ int save_lines_in_macro_table(FILE *file, Macro_Table **table) {
 			printf("Error: Extraneous text after \"endmcro\".\n");
 			return 0;
 	}
-	printf("saved with the name: \"%s\"\n", (*table)->name);
 	/* does not have extraneous text after "endmcro", returning 1. */
 	return 1;
 
@@ -268,9 +259,7 @@ int check_macro_name(char *name, Macro_Table *head) {
 
 char *get_macro_val(char *name, Macro_Table *head) {
 	/* going over the list until reaching  */
-	printf("the given macro_name is: \"%s\"\n", name);
 	while(head && head->name) {
-		printf("head name: \"%s\", and is it the same: %d, the lengths: %d, %d\n", head->name, strcmp((head->name), name) == 0, strlen(head->name), strlen(name));
 		if(strcmp((head->name), name) == 0) return (head->value);
 		head = head->next;
 	}
