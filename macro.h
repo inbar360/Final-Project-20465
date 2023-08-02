@@ -10,4 +10,5 @@ typedef struct Macro_Table table;
 int preprocess(FILE *file, char *name);
 void free_table(table **head);
 
+
 #endif

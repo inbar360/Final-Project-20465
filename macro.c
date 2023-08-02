@@ -275,4 +275,12 @@ void free_table(Macro_Table **head) {
 	}
 }
 
+char *strcat_name(char *file_name, char *to_add) {
+	char *new_name = (char *)malloc((strlen(file_name)+strlen(to_add)+1) * sizeof(char));
+	if (!new_name) return NULL;
+	strcpy(new_name, file_name);
+	strcat(new_name, ".as");
+	return new_name;
+}
+
 	
