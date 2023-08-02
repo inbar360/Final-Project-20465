@@ -14,6 +14,27 @@ typedef enum registers{
 	NON_REG = -1
 } reg;
 
+typedef enum instructions{
+  mov = 0,
+  cmp,
+  add,
+  sub,
+  lea,
+  not,
+  clr,
+  inc,
+  dec,
+  jmp,
+  bne,
+  red,
+  prn,
+  jsr,
+  rts,
+  stop,
+  NON_INSTRUCTION = -1
+} instruction;
+
+
 char[] opcode_in_binary(char[] op){
   if(strcmp(op, "mov") == 0)
     return "0000";
