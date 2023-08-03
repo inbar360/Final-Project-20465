@@ -90,7 +90,7 @@ int preprocess(FILE *file, char *name) {
 				REMOVE_FILE(to, name_of_new_file);
 				return 0;
 			}
-			macro_name = (char *)malloc((macro_name_len+1) * sizeof(char));
+			macro_name = (char *)calloc((macro_name_len+1), sizeof(char));
 			if (!macro_name) {
 				printf("Error: Memory allocation failed.\n");
 				free(head);
@@ -98,7 +98,6 @@ int preprocess(FILE *file, char *name) {
 				REMOVE_FILE(to, name_of_new_file);
 				return -1;
 			}
-			memset(macro_name, '\0', macro_name_len+1);
 			strncpy(macro_name, line+i, macro_name_len);
 			result = check_macro_name(macro_name, head);
 			if (result == 1) {
