@@ -5,10 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct Macro_Table table;
+#define MAX_LINE 80
+typedef struct Macro_Table Macro_Table;
 
-int preprocess(FILE *file, char *name);
-void free_table(table **head);
-
+int preprocess(FILE *file, char *name, Macro_Table **head);
+void free_table(Macro_Table **head);
+char *strcat_name(char *file_name, char *to_add);
 
 #endif

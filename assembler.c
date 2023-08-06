@@ -20,6 +20,7 @@ int main(int argc, char *argv[]) {
 int process_file(char *file_name) {
     char *name = strcat_name(file_name, ".as");
     FILE *file = NULL;
+    Macro_Table *head = NULL;
     int prepro;
     if (!name) {
     	printf("Error: Memory allocation failed.\n");
@@ -27,13 +28,12 @@ int process_file(char *file_name) {
     }
     
     file = fopen(name, "r");
-    
     if (!file) {
     	printf("Error: Could not open file %s\n", name);
     	free(name);
     	return 0;
     }
-    prepro = preprocess(file, file_name);
+    prepro = preprocess(file, file_name, &head);
     if(prepro == -1) {
    		fclose(file);
    		free(name);
@@ -42,9 +42,11 @@ int process_file(char *file_name) {
     else if (prepro == 0) {
     	fclose(file);
     	free(name);
+    	free_table(&head);
     	return 0;
     }
     
+    free_table(&head);
     free(name);
     fclose(file);
     return 1;
