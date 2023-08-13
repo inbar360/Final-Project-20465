@@ -3,6 +3,8 @@
 #define MAX_LINE 81
 #define MCRO_LENGTH 4
 
+int linepos = 0;
+
 static int process_line(FILE *from, char *line, struct Macro_Table **table, FILE *to, struct Macro_Table *head);
 
 boolean preprocess(FILE *file, char *name, struct Macro_Table **head, FILE *to) {
@@ -27,10 +29,11 @@ static int process_line(FILE *from, char *line, struct Macro_Table **table, FILE
     int start = 0, end = 0, temp = 0;
     char *mcr_name = NULL, *mcr_value = NULL;
     if (fgets(line, MAX_LINE, from) == NULL) return EOF;
+    linepos++;
 	printf("line is: \"%s\"\n", line);
 	line[MAX_LINE-1] = '\0';
     if (line[strlen(line)-1] != '\n' && !feof(from) && *line != '\n') {
-        printf("Error: Length of line is longer than %d characters.\n", MAX_LINE);
+        printf("Error: Length of line %d is longer than %d characters.\n", linepos, MAX_LINE);
         return FALSE;
     }
 
@@ -48,7 +51,7 @@ static int process_line(FILE *from, char *line, struct Macro_Table **table, FILE
         temp = end;
         SKIP_WHITE(line, temp);
         if(!END_CHAR(line, temp)) {
-            printf("Error: Extranous text after macro name.\n");
+            printf("Error: Extranous text after macro name at line %d.\n", linepos);
             return FALSE;
         }
         mcr_name = (char *)malloc(end-start+1);
@@ -61,7 +64,7 @@ static int process_line(FILE *from, char *line, struct Macro_Table **table, FILE
         mcr_name[end-start] = '\0';
         printf("after name, \"%s\"\n", mcr_name);
         if (name_exists(head, mcr_name)) {
-            printf("Error: Macro name already exists.\n");
+            printf("Error: Macro name already exists at line %d.\n", linepos);
             free(mcr_name);
             return FALSE;
         }
@@ -117,9 +120,10 @@ char *get_macro_value(FILE *from, struct Macro_Table **table) {
     }
 
     fgets(line, MAX_LINE, from);
+    linepos++;
     line[MAX_LINE-1] = '\0';
     if (line[strlen(line)-1] != '\n' && !feof(from) && *line != '\n') {
-        printf("Error: Length of line is longer than %d characters.\n", MAX_LINE);
+        printf("Error: Length of line %d is longer than %d characters.\n", linepos, MAX_LINE);
         return NULL;
     }
 
@@ -141,9 +145,10 @@ char *get_macro_value(FILE *from, struct Macro_Table **table) {
         } 
 
         fgets(line, MAX_LINE, from);
+        linepos++;
         line[MAX_LINE-1] = '\0';
         if (line[strlen(line)-1] != '\n' && !feof(from) && *line != '\n') {
-            printf("Error: Length of line is longer than %d characters.\n", MAX_LINE);
+            printf("Error: Length of line %d is longer than %d characters.\n", linepos ,MAX_LINE);
             return NULL;
         }
 
