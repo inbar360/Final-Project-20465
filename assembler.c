@@ -1,6 +1,8 @@
+#include "utils.h"
 #include "macro.h"
+#include "table.h"
 
-int process_file(char *name);
+static boolean process_file(char *name);
 
 int main(int argc, char *argv[]) {
     int i;
@@ -17,13 +19,21 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-int process_file(char *file_name) {
+static boolean process_file(char *file_name) {
     char *name = strcat_name(file_name, ".as");
-    FILE *file = NULL;
-    Macro_Table *head = NULL;
+    FILE *file = NULL, *to = NULL;
+    struct Macro_Table *head = NULL;
+    char *new_name = strcat_name(file_name, ".am");
     int prepro;
+
+    if (!new_name) {
+        printf("Error: Memory allocation failed.\n");
+        exit(1);
+    }
+
     if (!name) {
     	printf("Error: Memory allocation failed.\n");
+        free(new_name);
     	exit(1);
     }
     
@@ -31,24 +41,34 @@ int process_file(char *file_name) {
     if (!file) {
     	printf("Error: Could not open file %s\n", name);
     	free(name);
-    	return 0;
+        free(new_name);
+    	return FALSE;
     }
-    prepro = preprocess(file, file_name, &head);
-    if(prepro == -1) {
-   		fclose(file);
-   		free(name);
-    	exit(1);
+
+    to = fopen(new_name, "w+");
+    if(!to) {
+        printf("Error: Could not open file %s\n", new_name);
+        free(new_name);
+        free(name);
+        fclose(file);
+        return FALSE;
     }
-    else if (prepro == 0) {
-    	fclose(file);
-    	free(name);
-    	free_table(&head);
-    	return 0;
+    prepro = preprocess(file, file_name, &head, to);
+    if (!prepro) {
+        printf("Did not work");
+        REMOVE_FILE(to, new_name);
+        free(new_name);
+        free(name);
+        fclose(file);
+        free_table(&head);
+        return FALSE;
     }
     
+    free(new_name);
     free_table(&head);
     free(name);
     fclose(file);
-    return 1;
+    fclose(to);
+    return TRUE;
     
 }

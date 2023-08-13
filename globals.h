@@ -1,6 +1,12 @@
+#ifndef _GLOBALS_H
+#define _GLOBALS_H
+#include <stdio.h>
 
+#define MAX_LINE 81
 
-#define MAX_LINE 80
+typedef enum {
+  FALSE = 0, TRUE = 1
+} boolean;
 
 typedef enum registers{
 	r0 = 0,
@@ -14,7 +20,7 @@ typedef enum registers{
 	NON_REG = -1
 } reg;
 
-char[] opcode_in_binary(char[] op){
+/*char[] opcode_in_binary(char[] op){
   if(strcmp(op, "mov") == 0)
     return "0000";
   if(strcmp(op, "cmp") == 0)
@@ -47,5 +53,6 @@ char[] opcode_in_binary(char[] op){
     return "1110";
   if(strcmp(op, "stop") == 0)
     return "1111";
-}
+}*/
 
+#endif
