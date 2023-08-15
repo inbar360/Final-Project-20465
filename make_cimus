@@ -1,0 +1,10 @@
+
+#typedef struct Data_Table{
+    length;//how many machine words are needed
+    char type;//if it is data/string/ext/ent
+    char[32] data;//name of label
+    char** binary;//the machine words
+    binary = (char**) malloc(sizeof(char*));
+    binary* = (char*) malloc(sizeof(char) * BITS);
+    Data_Table next;
+}Data_Table;
