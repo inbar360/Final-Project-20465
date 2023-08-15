@@ -1,28 +1,227 @@
 #include <stdio.h>
-
+#define BITS 12
 #typedef struct Data_Table{
-    int value;
-    char[] data;
+    int value, length;
+    char type;
+    char[32] data;
+    char** binary;
+    binary = (char**) malloc(sizeof(char*));
+    binary* = (char*) malloc(sizeof(char) * BITS);
     Data_Table next;
 }Data_Table;
 
+#typedef struct Ent_Table{
+    int value;
+    char[32] data;
+    Data_Table next;
+}Ent_Table;
+
+#typedef struct Ext_Table{
+    int value;
+    char[32] data;
+    Data_Table next;
+}Ext_Table;
+
 Data_Table data_head;
-int counter;
+Ent_Table ent_head;
+Ext_Table ext_head;
+int IC = 0, DC = 0, COUNTER;
+
+int is_label(file, line){
+    int i = 0;
+    while(i < 32 && *(st + i) != '\0' && *(st + i) != ':' && *(st + i) != ' ' && *(st + i) != '\t' && *(st + i) != '\n'){
+        if((*(st + i) > 57 && *(st + i) < 65) || *(st + i) < 48 || (*(st + i) > 90 && *(st + i) < 97) || *(st + i) > 122)
+            return 0;
+        i++;
+    }
+    if(*(st + i) == ':') return 1;
+}
+
+int in_list(Data_Table dt, char[] str){
+    dt1= dt;
+    while(dt1 != NULL){
+        if(strcmp(str, dt1.data) == 0){
+            return 1;
+        }
+        dt1 = dt1.next;
+    }
+    return 0;
+}
+
+char[] opcode_in_binary(char[] op){
+  if(strcmp(op, "mov") == 0)
+    return "0000";
+  if(strcmp(op, "cmp") == 0)
+    return "0001";
+  if(strcmp(op, "add") == 0)
+    return "0010";
+  if(strcmp(op, "sub") == 0)
+    return "0011";
+  if(strcmp(op, "not") == 0)
+    return "0100";
+  if(strcmp(op, "clr") == 0)
+    return "0101";
+  if(strcmp(op, "lea") == 0)
+    return "0110";
+  if(strcmp(op, "inc") == 0)
+    return "0111";
+  if(strcmp(op, "dec") == 0)
+    return "1000";
+  if(strcmp(op, "jmp") == 0)
+    return "1001";
+  if(strcmp(op, "bne") == 0)
+    return "1010";
+  if(strcmp(op, "red") == 0)
+    return "1011";
+  if(strcmp(op, "prn") == 0)
+    return "1100";
+  if(strcmp(op, "jsr") == 0)
+    return "1101";
+  if(strcmp(op, "rts") == 0)
+    return "1110";
+  if(strcmp(op, "stop") == 0)
+    return "1111";
+  return NULL;
+}
+
+char[] make_binary(int num){
+    char bin[] = char[BITS];
+    int i = 0;
+    while(num){
+        char[i] = num % 2 + '0';
+        num /= 2;
+        i++;
+    }
+    for(j = i; j < 12; j++){
+        char[j] = '0';
+    }
+    for(j = 0; j < 6){
+        char temp;
+        temp = bin[j];
+        bin[j] = bin[11 - j];
+        bin[11 - j] = temp;
+    }
+    if(bin[0] == 1 && num >= 0){
+        printf("Error: number to large");
+        return NULL;
+    }
+    else if(num < 0){
+        
+    }
+    return temp;
+}
+
+char[] organization_type(op){
+    int 0;
+    if(op[0] == '@' && op[1] = 'r' && op[2] <= '7' && op[2] >= '0' && (op[3] == '\n' || op[3] == '\t' || op[3] == ' ')){
+        return "101";
+    }
+    int is_num = 0;
+    while(op[i] != '\n' && op[i] != '\t' && op[i] != ' '){
+        if(op[i] < '0' || op[1] > '9')
+            is_num = 1;
+    }
+    if(is_num = 0)
+        return "001"
+    int is_label = 0, i = 0;
+    while(op[i] != '\n' && op[i] != '\t' && op[i] != ' '){
+        if(op[i] > 57 && op[i] < 65) || op[i] < 48 || (op[i] > 90 && *(st + i) < 97) || op[i] > 122))
+            flag = 1;
+    }
+    if(i > 32){
+        printf("Error: non legal operand");
+        return NULL;
+    }
+    if(flag == 1){
+        printf("Error: non legal operand");
+    }
+    return "011"
+}
+
+char[] make_ARE(line after label st){
+    int i = 0, fir_op = 0, sec_op = 0
+    char type_fir = 0, type_sec = 0;
+    SKIP_WHITE(st, i);
+    i += 5;
+    SKIP_WHITE(st, i);
+    if(st[i] != '\n'){
+        fir_op = 1;
+        if(strcmp(organization_type(st + sizeof(char) * i), "101") == 0 || strcmp(organization_type(st + sizeof(char) * i), "001") == 0){
+            type_fir = 0;
+        }
+        int length_op = 0, j = i;
+        while(st[j] != ' ' && st[j] != '\t' && st[j] != '\n' && length_op < 32){
+            length_op++;
+            j++;
+        }
+        if(length_op == 32){
+            printf("Error: unrecognized operator");
+            return NULL;
+        }
+        Data_Table temp = date_head;
+        while(strncmp(temp.data, st + (sizeof(char) * i), length_op) != 0 && temp.next != NULL)
+            temp = temp.next;
+        if(strncmp(temp.data, st + (sizeof(char) * i), length_op) == 0)
+            type_fir = temp.type;
+        else 
+            printf("Erorr: reference to an undeclared label");
+        i += length_op;
+    }
+    else{
+        return "00";
+    }
+    SKIP_WHITE(st, i);
+    if(st[i] != '\n'){
+        sec_op = 1;
+        if(strcmp(organization_type(st + sizeof(char) * i), "101") == 0 || strcmp(organization_type(st + sizeof(char) * i), "001") == 0){
+            type_sec = 0;
+        }
+        int length_op = 0, j = i;
+        while(st[j] != ' ' && st[j] != '\t' && st[j] != '\n' && length_op < 32){
+            length_op++;
+            j++;
+        }
+        if(length_op == 32){
+            printf("Error: unrecognized operator");
+            return NULL;
+        }
+        Data_Table temp = date_head;
+        while(strncmp(temp.data, st + (sizeof(char) * i), length_op) != 0 && temp.next != NULL)
+            temp = temp.next;
+        if(strncmp(temp.data, st + (sizeof(char) * i), length_op) == 0)
+            type_sec = temp.type;
+        else 
+            printf("Erorr: reference to an undeclared label");
+        i += length_op;
+    }
+    return type_fir == 'e' || type_sec == 'e' ? "01" : type_fir == 'r' || type_sec == 'r' ? "10" : "00";
+    
+}
+
+char[] make_command_binary(text of line){
+    char[] binary = char[12], command = char[4], fir_op = char[3], sec_op = char[3], ARE = char[2];
+    
+
+}
 
 int add_string_data(file string s1, int counter, int line){//adds labels of .string type
     Data_Table* curr = &date_head;
-    for(i = 0; i < counter - 1; i++){ //going to the next empty node
+    for(i = 0; i < DC - 1; i++){ //going to the next empty node
         curr = &(curr->next);
     }
 
+    char[] lab = char[32];
     int i = 0;
     while(i < 32 && *(st + i) != '\0' && *(st + i) != ':' && *(st + i) != ' ' && *(st + i) != '\t' && *(st + i) != '\n'){
         if((*(st + i) > 57 && *(st + i) < 65) || *(st + i) < 48 || (*(st + i) > 90 && *(st + i) < 97) || *(st + i) > 122)
             printf("///Error in line %d: label name can only contain numbers and English letters (lower and upper case)///", line);
             return 0;
+        lab[i] = *(st + i);
         i++;
     }
     if(*(st + i) == ':'){
+        int start, end, length = 0;
+        char* string = (char*) malloc(sizeof(char));
         i += 2;
         SKIP_WHITE(st, i);
         if(strncmp(st+i, ".string", 7) == 0){
@@ -36,33 +235,43 @@ int add_string_data(file string s1, int counter, int line){//adds labels of .str
                 printf("///Error in line %d: no quotation marks in the beginning of the string///", line);
                 return 0;
             }
-            i++;
+            start = ++i;
             while(*(st + i) != '"' && *(st + i) != '\n'){
                 if(*(st + i) <= 31 || *(st + i) >= 128){
                     printf("///Error in line %d: non printable char in string///", line);
                     return 0;
                 }
+                *(string + length) = *(st + i);
+                length++;
                 i++;
             }
             if(*(st + i) == '\n'){
                 printf("///Error in line %d: no quotation marks in the end of the string///", line);
                 return 0;
             }
-            i++;
+            end = i++;
             SKIP_WHITE(st, i);
             if(*(st + i) != '\n'){
                 printf("///Error in line %d: to many operands in the declaration of .string///", line);
                 return 0;
             }
+            if(in_list(data_head, lab) == 1){
+                return 0;
+                printf("///Error in line %d: label - '%s' declared multiple times///", line, lab);
+            }
             Data_Table new;
             new.value = line + 100;
-            char[] new_data = char[32];
-            int j = 0;
-            while(*(st + j) != ':'){
-                new_data[j] = *(st + j);
-            }
-            new.data = new_data;
+            new.type = 's';
+            new.length = length;
+            new.data = lab;
             new.next = NULL;
+            new.binary = (char**) realloc(binary, length);      //adress if string is empty
+            for(int k = 0; k < length; k++){
+                char[] temp = make_binary(*(string + k));
+                for(int z = 0; z < 12; z++){
+                    *(*(binary + k) + z) = temp[z];
+                }
+            }
             if(counter == 0)
                 data_head = new_data;
             else
@@ -104,6 +313,7 @@ int add_data_data(file string s1, int counter, int line){//adds labels of .data 
                 return 0;
             }
             SKIP_WHITE(st, i);
+            int d_counter;
             while(*(st + i) != '\n'){
                 if(*(st + i) == '-'){
                     if(*(st + (i + 1)) > 57 || *(st + (i + 1)) < 48){
@@ -124,7 +334,9 @@ int add_data_data(file string s1, int counter, int line){//adds labels of .data 
                 }
                 i++;
                 SKIP_WHITE(st, i);
+                d_counter++;
             }
+            DC += d_counter;
             Data_Table new;
             new.value = line + 100;
             char[] new_data = char[32];
@@ -152,7 +364,7 @@ int add_data_data(file string s1, int counter, int line){//adds labels of .data 
 }
 
 
-int is_value_of_command(char* st, int line){
+int is_value_command(char* st, int line){
     int i = 0;
     while(i < 32 && *(st + i) != '\0' && *(st + i) != ':' && *(st + i) != ' ' && *(st + i) != '\t' && *(st + i) != '\n'){
         if((*(st + i) > 57 && *(st + i) < 65) || *(st + i) < 48 || (*(st + i) > 90 && *(st + i) < 97) || *(st + i) > 122)
@@ -165,17 +377,18 @@ int is_value_of_command(char* st, int line){
         SKIP_WHITE(st, i);
         
         //no operand commands//
-        else if(strncmp(st + 1, "stop", 4) == 0){
+        if(strncmp(st + i, "stop", 4) == 0){
             i += 4;//go to the char after the command
             SKIP_WHITE(st, i);
             if(*(st + i) != '\n'){//if there are chars that arent white after the word
                 printf("///Error in line %d: operand found in an operand-less command", line);
                 return 0;//wrong syntax
             }
+             
             return 1;
         }
 
-        else if(strncmp(st + 1, "rts", 3) == 0){
+        else if(strncmp(st + i, "rts", 3) == 0){
             i += 3;//go to the char after the command
             SKIP_WHITE(st, i);
             if(*(st + i) != '\n'){//if there are chars that arent white after the word
@@ -186,7 +399,7 @@ int is_value_of_command(char* st, int line){
         }
 
         //one operand commands//
-        else if(strncmp(st + 1, "not", 3) == 0){ //3 and 5 
+        else if(strncmp(st + i, "not", 3) == 0){ //3 and 5 
             i += 3;//go two chars after the command
             if(*(st + i) != '\t' && *(st + i) != ' ')//check if there is a space aftre the command
                 return 0;
@@ -216,5 +429,7 @@ int is_value_of_command(char* st, int line){
     
         
 }
+
+
 
 
