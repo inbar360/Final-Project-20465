@@ -1,6 +1,6 @@
 #include "utils.h"
+#include "preprocessor.h"
 #include "macro.h"
-#include "table.h"
 
 static boolean process_file(char *name);
 
@@ -55,7 +55,7 @@ static boolean process_file(char *file_name) {
     }
     prepro = preprocess(file, file_name, &head, to);
     if (!prepro) {
-        printf("Did not work");
+        printf("Spreading of macros into %s.am did not work.\n", file_name);
         REMOVE_FILE(to, new_name);
         free(new_name);
         free(name);

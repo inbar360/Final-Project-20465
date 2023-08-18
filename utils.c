@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+#include "globals.h"
 #include "utils.h"
 
 char *strcat_name(char *file_name, char *to_add) {
@@ -28,9 +28,10 @@ int word_length(char *str, int start_idx) {
 
 boolean equals(char *start, char *end, char *word) {
     int result;
-    char temp = *end;
-    *end = '\0';
-    result = !strcmp(start, word);
-    *end = temp;
-    return result ? TRUE : FALSE;
+    char temp = *end; /* Creates temp and sets it to ends value. */
+    *end = '\0'; /* Sets the char to '\0'. */
+    result = !strcmp(start, word); /* Sets result to whether the strings are equal. */
+    *end = temp; /* Sets ends value back to it's original value. */
+    return result ? TRUE : FALSE; /* Returns whether the strings are equal. */
 }
+

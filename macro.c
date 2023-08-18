@@ -1,162 +1,94 @@
 #include "macro.h"
 
-#define MAX_LINE 81
-#define MCRO_LENGTH 4
+struct Macro_Table {
+    char *name; /* The macro name. */
+	char *value; /* The macro value. */
+	struct Macro_Table *next; /* A pointer to the next macro in the list. */
+};
 
-int linepos = 0;
-
-static int process_line(FILE *from, char *line, struct Macro_Table **table, FILE *to, struct Macro_Table *head);
-
-boolean preprocess(FILE *file, char *name, struct Macro_Table **head, FILE *to) {
-
-    struct Macro_Table *table = create_table();
-    char line[MAX_LINE];
-    int process = TRUE;
-    *head = table;
-
-    while (process != EOF && process) {
-        process = process_line(file, line, &table, to, *head);
-    }
-
-    /* returns if reached the end of the file, or found a line with too many characters. */
-    return process == EOF; 
+struct Macro_Table *create_table() {
+    struct Macro_Table *table = (struct Macro_Table *)malloc(sizeof(struct Macro_Table));
+    if (!table) return NULL; /* If the created variable is NULL, meaning memory allocation errors, return NULL. */
+    table->name = NULL;
+    table->value = NULL;
+    table->next = NULL;
+    return table; /* Set all attributes to NULL and return the pointer. */
 }
 
-char *get_macro_value(FILE *from, struct Macro_Table **table);
-
-static int process_line(FILE *from, char *line, struct Macro_Table **table, FILE *to, struct Macro_Table *head) {
-
-    int start = 0, end = 0, temp = 0;
-    char *mcr_name = NULL, *mcr_value = NULL;
-    if (fgets(line, MAX_LINE, from) == NULL) return EOF;
-    linepos++;
-	printf("line is: \"%s\"\n", line);
-	line[MAX_LINE-1] = '\0';
-    if (line[strlen(line)-1] != '\n' && !feof(from) && *line != '\n') {
-        printf("Error: Length of line %d is longer than %d characters.\n", linepos, MAX_LINE);
-        return FALSE;
-    }
-
-    SKIP_WHITE(line, start);
-    end = start;
-    SKIP_NON_WHITE(line, end);
-    if (line[start] == ';' || END_CHAR(line, start)) return TRUE;
-
-    if (equals(&line[start], &line[end], "mcro")) {
-    	printf("started with mcro\n");
-        start = end;
-        SKIP_WHITE(line, start);
-        end = start;
-        SKIP_NON_WHITE(line, end);
-        temp = end;
-        SKIP_WHITE(line, temp);
-        if(!END_CHAR(line, temp)) {
-            printf("Error: Extranous text after macro name at line %d.\n", linepos);
-            return FALSE;
-        }
-        mcr_name = (char *)malloc(end-start+1);
-        if (!mcr_name) {
-        	printf("Error: Memory allocation failed.\n");
-        	return FALSE;
-        }
-        printf("before name\n");
-        strncpy(mcr_name, line+start, end-start);
-        mcr_name[end-start] = '\0';
-        printf("after name, \"%s\"\n", mcr_name);
-        if (name_exists(head, mcr_name)) {
-            printf("Error: Macro name already exists at line %d.\n", linepos);
-            free(mcr_name);
-            return FALSE;
-        }
-		printf("before setting the name\n");
-        setName((*table), mcr_name);
-        printf("after setting the name\n");
-        mcr_value = get_macro_value(from, table);
-        if (mcr_value == NULL) {
-            free(mcr_name);
-            return FALSE;
-        }
-            
-        setValue(*table, mcr_value);
-
-        free(mcr_name);
-        free(mcr_value);
-        setNext(*table);
-        *table = getNext(*table);
-        if (!(*table)) {
-            printf("Error: Memory allocation failed.\n");
-            free(mcr_name);
-            return FALSE;
-        }
-        printf("ended with mcro\n");
-    }
-
-    else {
-        mcr_name = (char *)malloc(end-start+1);
-        strncpy(mcr_name, line+start, end-start);
-        mcr_name[end-start] = '\0';
-        
-        if(name_exists(head, mcr_name)) {
-            mcr_value = find_macro_val(head, mcr_name);
-            fputs(mcr_value, to);
-        }
-
-        else 
-            fputs(line, to);
-
-        free(mcr_name);
-    }
-
-    return TRUE;
+void setName (struct Macro_Table *table, char *name) {
+	if (!name) {
+		table->name = NULL;
+		return;
+	}
+	printf("name is: \"%s\"\n", name);
+	table->name = (char *)malloc((strlen(name)+1)*sizeof(char));
+	if (!table->name) { /* If the memory allocation failed, exit. */
+		printf("Error: Memory allocation failed.\n");
+		exit(1);
+	}
+	strcpy(table->name, name); /* Copy the given name to table's name. */
 }
 
-char *get_macro_value(FILE *from, struct Macro_Table **table) {
-    char *val = (char *)malloc(sizeof(char));
-    static char line[MAX_LINE];
-    int start = 0, end = 0, curlen = 1, curpos = 0;
-    if (!val) {
-        printf("Error: Memory allocation failed.\n");
-        return NULL;
-    }
-
-    fgets(line, MAX_LINE, from);
-    linepos++;
-    line[MAX_LINE-1] = '\0';
-    if (line[strlen(line)-1] != '\n' && !feof(from) && *line != '\n') {
-        printf("Error: Length of line %d is longer than %d characters.\n", linepos, MAX_LINE);
-        return NULL;
-    }
-
-    SKIP_WHITE(line, start);
-    end = start;
-    SKIP_NON_WHITE(line, end);
-
-    /* By the instructions, macro definition must end, therefore, no need to check for eof. */
-    while(!equals(&line[start], &line[end], "endmcro")) {
-        val[curlen-1] = '\0';
-        if (!(line[start] == ';' || END_CHAR(line, start))) {
-        	printf("len val, line: %d %d\n", strlen(val), strlen(line));
-        	curlen = strlen(val) + strlen(line);
-        	printf("val %d, curlen %d, val is: \"%s\"\n", strlen(val), curlen, val);
-            val = (char *)realloc(val, curlen*sizeof(char));
-            memcpy(val+curpos, line+1, strlen(line));
-            curpos += strlen(line)-1;
-            printf("val cur is: \"%s\"\n", val);
-        } 
-
-        fgets(line, MAX_LINE, from);
-        linepos++;
-        line[MAX_LINE-1] = '\0';
-        if (line[strlen(line)-1] != '\n' && !feof(from) && *line != '\n') {
-            printf("Error: Length of line %d is longer than %d characters.\n", linepos ,MAX_LINE);
-            return NULL;
-        }
-
-        start = 0;
-        SKIP_WHITE(line, start);
-        end = start;
-        SKIP_NON_WHITE(line, end);
-    }
-
-    return val;
+void setValue (struct Macro_Table *table, char *value) {
+	table->value = (char *)malloc((strlen(value)+1)*sizeof(char));
+	if (!table->value) { /* If the memory allocation failed, exit. */
+		printf("Error: Memory allocation failed.\n");
+		exit(1);
+	}
+    strcpy(table->value, value); /* Copy the given value to table's value. */
 }
+
+void setNext (struct Macro_Table *table) {
+    table->next = create_table(); /* Set table's next using the create_table method. */
+}
+
+char *getName(struct Macro_Table *table) {
+    return table->name; /* Returns the name. */
+}
+
+char *getValue(struct Macro_Table *table) {
+    return table->value; /* Returns the value. */
+}
+
+struct Macro_Table *getNext (struct Macro_Table *table) {
+    return table->next; /* Returns the pointer to the next macro. */
+}
+
+boolean name_exists(struct Macro_Table *head, char *name) {
+    /* Going over the list, checking if the name already exists. */
+	while (head && head->name) {
+		printf("mcr name: \"%s\"\n", head->name);
+		if (strcmp(head->name, name) == 0) return TRUE;
+		head = head->next;
+	}
+
+	/* Returning 0 if the name does not already exist in the list. */
+	return FALSE;
+}
+
+char *find_macro_val(struct Macro_Table *head, char *name) {
+    /* Going over the list, if the given name is equal to the macro name, return it's value. */
+    while (head && head->name) {
+        if (strcmp(head->name, name) == 0) return head->value;
+        head = head->next; /* Point to the next macro. */
+    }
+
+    return NULL;
+}
+
+void free_table(struct Macro_Table **head) {
+	/* Variable: next - used to save head's next each iteration of the while loop. */
+	struct Macro_Table *next;
+	/* Goes over the table starting with head.
+	   Each iteration, sets next's pointer to heads values next, free's heads values attributes, 
+	   then heads value itself, and finally sets heads value to point to next. */
+	while(*head != NULL) {
+		next = (*head)->next; 
+		free((*head)->name);
+		free((*head)->value);
+		free(*head);
+		*head = next;
+	}
+}
+
+

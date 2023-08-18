@@ -57,6 +57,7 @@
   "C_Cpp_Runner.useLinkTimeOptimization": false,
   "files.associations": {
     "string": "c",
-    "typeinfo": "c"
+    "typeinfo": "c",
+    "array": "c"
   }
 }
