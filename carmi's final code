@@ -875,7 +875,7 @@ int is_value_command_legal_label(char* st, &Data_Table curr_node, int line){
                     num = -num;
                 char temp_bin[12];
                 make_binary(num, line, temp_bin);
-                for(int z = 0; z < 12){
+                for(int z = 0; z < 12; z++){
                     if(z > 9)
                         temp_bin[z] = '0';
                     else
@@ -1085,7 +1085,7 @@ int is_value_command_legal_label(char* st, &Data_Table curr_node, int line){
                     num = -num;
                 char temp_bin[12];
                 make_binary(num, line, temp_bin);
-                for(int z = 0; z < 12){
+                for(int z = 0; z < 12; z++){
                     if(z > 9)
                         temp_bin[z] = '0';
                     else
@@ -1235,7 +1235,7 @@ int is_value_command_legal_label(char* st, &Data_Table curr_node, int line){
                     num = -num;
                 char temp_bin[12];
                 make_binary(num, line, temp_bin);
-                for(int z = 0; z < 12){
+                for(int z = 0; z < 12; z++){
                     if(z > 9)
                         temp_bin[z] = '0';
                     else
@@ -1311,7 +1311,7 @@ int is_value_command_legal_label(char* st, &Data_Table curr_node, int line){
                     num = -num;
                 char temp_bin[12];
                 make_binary(num, line, temp_bin);
-                for(int z = 0; z < 12){
+                for(int z = 0; z < 12; z++){
                     if(z > 9)
                         temp_bin[z] = '0';
                     else
