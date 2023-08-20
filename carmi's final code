@@ -361,7 +361,6 @@ int add_extern_data(file string st, int line){
         else
             i = SKIP_WHITE(st, i);
         while(st[i] != '\n'){
-            i = SKIP_WHITE(st, i);
             int l = i;
             while(st[l] != ' ' && st[l] != '\t' && st[l] != '\n')
                 l++;
@@ -397,12 +396,8 @@ int add_extern_data(file string st, int line){
                 for(int m = i; m < l; m++)
                     new_data.data[m] = *(st + (i + m));
             }
-            i = l + 1;
-            if(st[i] != ' ' && st[i] != '\t' && st[i] != '\n'){
-                printf("Error in line %d: no seperation bitween operands", line);
-                ERRORS++;
-                errors_here++;
-            }
+            i = l;
+            i = SKIP_WHITE(st, i);
             if(errors_here > 0)
                 return 0;
             new_data.type = 'x';
@@ -453,7 +448,6 @@ int mark_label_entry(file string st, int line){
         else
             i = SKIP_WHITE(st, i);
         while(st[i] != '\n'){
-            i = SKIP_WHITE(st, i);
             int l = i;
             while(st[l] != ' ' && st[l] != '\t' && st[l] != '\n')
                 l++;
@@ -478,6 +472,7 @@ int mark_label_entry(file string st, int line){
                 return 0;
             curr->type = 'e';
             i = l;
+            i = SKIP_WHITE(st, i);
         }
         return 1;
     }
