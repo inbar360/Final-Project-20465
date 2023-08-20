@@ -1,7 +1,8 @@
 /* Assumptions:
     - Macro definitions must end.
     - There are no nested macro definitons.
-    - Macro reference could only be the first word of the line. */
+    - Macro reference could only be the first word of the line.
+    - If a macro is being referenced, the rest of the line is either empty, or white characters. */
 
 #include "preprocessor.h"
 
@@ -13,7 +14,7 @@ int linepos = 0;
 /* This function processes a single line from the given file,
    writes the result into the output file.
    returns: FALSE if encountered an error, EOF if reached the end of the file, and TRUE otherwise. */
-static int process_line(FILE *from, char *line, struct Macro_Table **table, FILE *to, struct Macro_Table *head);
+static int process_line(FILE *from, char *line, struct Macro_Table **table, FILE *to, struct Macro_Table *head, char *name);
 
 boolean preprocess(FILE *file, char *name, struct Macro_Table **head, FILE *to) {
     /* Creating the macro table, and setting heads value to table. */
@@ -25,7 +26,7 @@ boolean preprocess(FILE *file, char *name, struct Macro_Table **head, FILE *to) 
 
     /* Calling the process_line function. */
     while (process != EOF) {
-        process = process_line(file, line, &table, to, *head);
+        process = process_line(file, line, &table, to, *head, name);
         if (!process) errors = TRUE;
     }
 
@@ -36,9 +37,9 @@ boolean preprocess(FILE *file, char *name, struct Macro_Table **head, FILE *to) 
 /* Given a file, and the macro table, this function goes over lines from the file,
    until encountering "endmcro".
    returns: the macro value, or NULL in case of an error. */
-char *get_macro_value(FILE *from, struct Macro_Table **table);
+char *get_macro_value(FILE *from, struct Macro_Table **table, char *name);
 
-static int process_line(FILE *from, char *line, struct Macro_Table **table, FILE *to, struct Macro_Table *head) {
+static int process_line(FILE *from, char *line, struct Macro_Table **table, FILE *to, struct Macro_Table *head, char *name) {
 
     int start = 0, end = 0, temp = 0;
     char *mcr_name = NULL, *mcr_value = NULL, c;
@@ -46,7 +47,7 @@ static int process_line(FILE *from, char *line, struct Macro_Table **table, FILE
     linepos++; /* Add 1 to linepos. */
 	line[MAX_LINE-1] = '\0'; /* Setting the last char of line to '\0'. */
     if (line[strlen(line)-1] != '\n' && !feof(from) && *line != '\n') {
-        printf("Error: Length of line %d is longer than %d characters.\n", linepos, MAX_LINE);
+        printf("Error: Length of line %d in file \"%s\" is longer than %d characters.\n", linepos, name, MAX_LINE);
         c = fgetc(from);
         SKIP_REST_OF_LINE(from, c);
         return FALSE;
@@ -65,7 +66,7 @@ static int process_line(FILE *from, char *line, struct Macro_Table **table, FILE
         temp = end;
         SKIP_WHITE(line, temp);
         if(!END_CHAR(line, temp)) { /* If there are other chars after the name of macro, return FALSE. */
-            printf("Error: Extranous text after macro name at line %d.\n", linepos);
+            printf("Error: Extranous text after macro name at line %d in file \"%s\".\n", linepos, name);
             return FALSE;
         }
         mcr_name = (char *)malloc(end-start+1); /* Allocate the amount of chars + 1 for '\0'. */
@@ -76,12 +77,12 @@ static int process_line(FILE *from, char *line, struct Macro_Table **table, FILE
         strncpy(mcr_name, line+start, end-start); 
         mcr_name[end-start] = '\0'; /* Copy the amount of chars to mcr_name, and set last char to '\0'. */
         if (name_exists(head, mcr_name)) { /* If the macro name already exists in table, return FALSE. */
-            printf("Error: Macro name already exists at line %d.\n", linepos);
+            printf("Error: Macro name already exists at line %d in file \"%s\".\n", linepos, name);
             free(mcr_name);
             return FALSE;
         }
         setName((*table), mcr_name); /* Set the current macro name to mcr_name. */
-        mcr_value = get_macro_value(from, table); /* Get the value of the macro. No need to allocate new memory because the function returns a variable of type char *, which is not freed inside the function. */
+        mcr_value = get_macro_value(from, table, name); /* Get the value of the macro. No need to allocate new memory because the function returns a variable of type char *, which is not freed inside the function. */
         if (mcr_value == NULL) { /* If mcr_value is NULL return FALSE. */
         	free(getName(*table));
         	setName((*table), NULL);
@@ -107,7 +108,7 @@ static int process_line(FILE *from, char *line, struct Macro_Table **table, FILE
         mcr_name[end-start] = '\0'; /* Set the last char to '\0' */
         
         if(name_exists(head, mcr_name)) { /* If the name exists in the macro table, set mcr_value to it's value, and put in the output file. */
-            mcr_value = find_macro_val(head, mcr_name);
+            mcr_value = find_macro_val(head, mcr_name); /* Assuming there are no other significant characters in the same line. */
             fputs(mcr_value, to);
         }
 
@@ -120,7 +121,7 @@ static int process_line(FILE *from, char *line, struct Macro_Table **table, FILE
     return TRUE; /* Return TRUE if did not run into any issues. */
 }
 
-char *get_macro_value(FILE *from, struct Macro_Table **table) {
+char *get_macro_value(FILE *from, struct Macro_Table **table, char *name) {
     char *val = (char *)malloc(sizeof(char)), c;
     static char line[MAX_LINE];
     boolean errors = FALSE;
@@ -134,7 +135,7 @@ char *get_macro_value(FILE *from, struct Macro_Table **table) {
     linepos++; /* Add 1 to the linepos. */
     line[MAX_LINE-1] = '\0'; /* Set the last char of line to '\0' */
     if (line[strlen(line)-1] != '\n' && !feof(from) && *line != '\n') { /* If the line is longer than 80 chars, not including '\n', return NULL. */
-        printf("Error: Length of line %d is longer than %d characters.\n", linepos, MAX_LINE);
+        printf("Error: Length of line %d in file \"%s\" is longer than %d characters.\n", linepos, name, MAX_LINE);
         c = fgetc(from);
         SKIP_REST_OF_LINE(from, c); /* Skip the rest of the line. */
         errors = TRUE;
@@ -158,7 +159,7 @@ char *get_macro_value(FILE *from, struct Macro_Table **table) {
         linepos++; /* Add 1 to linepos and set the last char to '\0'. */
         line[MAX_LINE-1] = '\0';
         if (line[strlen(line)-1] != '\n' && !feof(from) && *line != '\n') { /* If the line is longer than 80 chars, not including '\n', return NULL. */
-            printf("Error: Length of line %d is longer than %d characters.\n", linepos ,MAX_LINE);
+            printf("Error: Length of line %d in file \"%s\" is longer than %d characters.\n", linepos, name, MAX_LINE);
             c = fgetc(from);
             SKIP_REST_OF_LINE(from, c); /* Skip the rest of the line. */
             errors = TRUE;

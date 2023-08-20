@@ -20,13 +20,17 @@
    returns: NULL if ran into allocation errors, otherwise the new string. */
 char *strcat_name(char *file_name, char *to_add);
 
-/* Given a string str and a starting index, 
-   this function returns the length of the word starting at that index. */
-int word_length(char *str, int start_idx);
+/* Given a string str, 
+   this function returns the length of the first word. */
+int word_length(char *str);
 
 /* This function checks whether two words are equal,
    The given "word", and the string starting with "start" and ending with the char before "end".
    returns: TRUE if the words are equal, FALSE otherwise. */
 boolean equals(char *start, char *end, char *word);
+
+/* This function receives a char array of length 12, the binary representation,
+   Prints the base64 words into the object file. */
+void base64print(FILE *obj, char bin[]);
 
 #endif

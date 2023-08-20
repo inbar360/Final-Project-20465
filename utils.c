@@ -16,7 +16,7 @@ char *strcat_name(char *file_name, char *to_add) {
 	return new_name;
 }
 
-int word_length(char *str, int start_idx) {
+int word_length(char *str) {
 	/* Variable: i- an integer for the usage of the for loop. */
 	int i;
 	
@@ -35,3 +35,22 @@ boolean equals(char *start, char *end, char *word) {
     return result ? TRUE : FALSE; /* Returns whether the strings are equal. */
 }
 
+void base64print(FILE *obj, char bin[]) {
+	char base_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	int num = 0, i;
+	char first, second;
+
+	for (i = 0; i < 6; i++) {
+        num <<= 1; /* Shifts the number left by 1 position */
+        num |= (bin[i] - '0'); /* Set the least significant bit based on the bin array */
+    }
+	first = base_chars[num]; /* Setting first to the char representing the first 6 bits. */
+	num = 0; /* Setting num to 0 for the second group of 6 bits. */
+
+	for (i = 0; i < 6; i++) {
+		num <<=1; /* Shifts the number left by 1 position. */
+		num |= (bin[i+6] - '0'); /* Set the least significant bit based on the bin array. */
+	}
+	second = base_chars[num]; /* Setting second to the char representing the last 6 bits. */
+	fprintf(obj, "%c%c\n", first, second); /* Printing both chars to the object file. */
+}

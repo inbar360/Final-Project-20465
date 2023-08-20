@@ -11,6 +11,7 @@
 #define LABEL_LENGTH 32
 #define MAX 2047
 #define MIN -2048
+#define IC_INIT_VAL 100
 #define SKIP_REST_OF_LINE(file, c) \
 	for(;c && c != '\n'; c = fgetc(file));
 

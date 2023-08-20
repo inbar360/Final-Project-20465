@@ -1,6 +1,9 @@
 #include "utils.h"
 #include "preprocessor.h"
 #include "macro.h"
+#include "second_pass.h"
+#include "output_files.h"
+#include "tables.h"
 
 static boolean process_file(char *name);
 
@@ -21,10 +24,12 @@ int main(int argc, char *argv[]) {
 
 static boolean process_file(char *file_name) {
     char *name = strcat_name(file_name, ".as");
-    FILE *file = NULL, *to = NULL;
+    FILE *file = NULL, *am = NULL;
     struct Macro_Table *head = NULL;
-    char *new_name = strcat_name(file_name, ".am");
-    int prepro;
+    struct Data_Table *data_head = NULL;
+    char *new_name = strcat_name(file_name, ".am"); /* Using strcat_name function from "utils.c" to create the new name. */
+    boolean prepro, secpass;
+    int ic = 0, dc = 0;
 
     if (!new_name) {
         printf("Error: Memory allocation failed.\n");
@@ -39,24 +44,25 @@ static boolean process_file(char *file_name) {
     
     file = fopen(name, "r");
     if (!file) {
-    	printf("Error: Could not open file %s\n", name);
+    	printf("Error: Could not open file %s.\n", name);
     	free(name);
         free(new_name);
     	return FALSE;
     }
 
-    to = fopen(new_name, "w+");
-    if(!to) {
-        printf("Error: Could not open file %s\n", new_name);
+    am = fopen(new_name, "w+"); /* Opening the file for writing and reading. */
+    if(!am) {
+        printf("Error: Could not open file %s.\n", new_name);
         free(new_name);
         free(name);
         fclose(file);
         return FALSE;
     }
-    prepro = preprocess(file, file_name, &head, to);
+
+    prepro = preprocess(file, new_name, &head, am);
     if (!prepro) {
         printf("Spreading of macros into %s.am did not work.\n", file_name);
-        REMOVE_FILE(to, new_name);
+        REMOVE_FILE(am, new_name);
         free(new_name);
         free(name);
         fclose(file);
@@ -64,11 +70,23 @@ static boolean process_file(char *file_name) {
         return FALSE;
     }
     
+
+    rewind(am); /* Before the second pass, set the file position to the beginning of the file. */
+    secpass = sec_pass(am, new_name, data_head, &ic);
+    if (!secpass) {
+        printf("Second pass of file \"%s\" did not work.\n", new_name);
+    }
+
+    else {
+        create_files(file_name, ic, dc, data_head);
+    }
+
     free(new_name);
     free_table(&head);
+    free_data_table(&data_head);
     free(name);
     fclose(file);
-    fclose(to);
+    fclose(am);
     return TRUE;
     
 }

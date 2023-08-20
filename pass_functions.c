@@ -1,5 +1,5 @@
 #include "globals.h"
-#include "first_pass.h"
+#include "pass_functions.h"
 
 Data_Table *data_head;
 Ent_Table *ent_head;
@@ -16,8 +16,8 @@ int is_label(file, line) {
     if(*(st + i) == ':') return 1;
 }
 
-int in_list(struct Data_Table dt, char str[]){
-    dt1= dt;
+int in_list(struct Data_Table *dt, char str[]){
+    struct Data_Table *dt1= dt;
     while(dt1 != NULL){
         if(strcmp(str, getDataData(dt1)) == 0){
             return 1;
