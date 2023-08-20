@@ -453,24 +453,21 @@ int mark_label_entry(file string st, int line){
         else
             i = SKIP_WHITE(st, i);
         while(st[i] != '\n'){
-            int l;
-            while(st[i] != ' ' && st[i] != '\t' && st[i] != '\n')
+            i = SKIP_WHITE(st, i);
+            int l = i;
+            while(st[l] != ' ' && st[l] != '\t' && st[l] != '\n')
                 l++;
-            int z = SKIP_WHITE(st, i + l);
-            if(*(st + z) != '\n'){//check if there are more than 1 operand
-                printf("Error in line %d: multiple operand in a 1 operand command", line);
-                ERRORS++;
-                errors_here++;
-            }
             int j = 0, in_list = 0;
             Data_Table temp = data_head;
             while(j < counter && in_list == 0){
-                if(strncmp(temp.data, st + sizeof(char) * i, l) == 0 && strlen(temp.data) == l)
+                if(strncmp(temp.data, st + sizeof(char) * i, l - i) == 0 && strlen(temp.data) == l - i)
                     in_list = 1;
+                temp = get_next(temp);
+                j++;
             }
             Data_Table* curr = &date_head;
             for(i = 0; i < j; i++){ //going to the next empty node
-            curr = &(curr->next);
+                curr = &(curr->next);
             }
             if(curr->type == "x"){
                 printf("Error in line %d: tried to declare an external label an entry");
@@ -480,6 +477,7 @@ int mark_label_entry(file string st, int line){
             if(errors_here > 0)
                 return 0;
             curr->type = 'e';
+            i = l;
         }
         return 1;
     }
