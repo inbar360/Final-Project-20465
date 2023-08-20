@@ -469,7 +469,7 @@ int mark_label_entry(file string st, int line){
                 errors_here++;
             }
             if(in_list != 1){
-                printf("Error in line %d: tried to declare an external label an entry", line);
+                printf("Error in line %d: tried daclaring a non existent label as entry", line);
                 ERRORS++;
                 errors_here++;
             }
