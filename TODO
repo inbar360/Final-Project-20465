@@ -1,1 +1,7 @@
 check if the macro name is not a label name\ הנחייה...
+problems assuming:
+    - make_command_binary if (op[j] != '.')???
+    - in make_memory_of_command_label - what if ran into memory allocation issues/ errors? still creating the node...
+
+to fix:
+    - remove all numbers which are not 0/1.

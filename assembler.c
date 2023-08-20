@@ -69,7 +69,11 @@ static boolean process_file(char *file_name) {
         free_table(&head);
         return FALSE;
     }
-    
+    /* FIRST PASS HERE
+        - in function first_pass:
+            1. string
+            2. if returned 1 - make data
+            3. ..... */
 
     rewind(am); /* Before the second pass, set the file position to the beginning of the file. */
     secpass = sec_pass(am, new_name, data_head, &ic);

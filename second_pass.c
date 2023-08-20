@@ -87,31 +87,38 @@ boolean save_entry(struct Data_Table *data, int linepos, char *line) {
     struct Data_Table *curr = data;
     int i = 0;
     char *label;
+    while (1) {
+        curr = data;
+        SKIP_NON_WHITE(line, i);
+        SKIP_WHITE(line, i);
+        if (line[i] == ',') i++;
+        SKIP_WHITE(line, i);
 
-    SKIP_NON_WHITE(line, i);
-    SKIP_WHITE(line, i);
+        if (line[i] == '\n') break;
 
-    label = (char *)malloc(word_length(line+i) + 1);
-    if (!label) {
-        printf("Error: Memory allocation failed.\n");
-        return EOF;
-    }
-    strncpy(label, line+i, word_length(line+i));
-    label[word_length(line+i)] = '\0';
-
-    while (curr) {
-        if(strcmp(label, getData(curr)) == 0) {
-            if (getType(curr) == 'x') {
-                printf("Error: Label \"%s\" appears as both extern and entry, ", label);
-                free(label);
-                return FALSE;
-            }
-            setType(curr, 'e');
-            break;
+        label = (char *)malloc(word_length(line+i) + 1);
+        if (!label) {
+            printf("Error: Memory allocation failed.\n");
+            return EOF;
         }
-        curr = getEntNext(curr);
+        strncpy(label, line+i, word_length(line+i));
+        label[word_length(line+i)] = '\0';
+
+        while (curr) {
+            if(strcmp(label, getData(curr)) == 0) {
+                if (getType(curr) == 'x') {
+                    printf("Error: Label \"%s\" appears as both extern and entry, ", label);
+                    free(label);
+                    return FALSE;
+                }
+                setType(curr, 'e');
+                break;
+            }
+            curr = getEntNext(curr);
+            
+        }
+        free(label);
     }
 
-    free(label);
     return TRUE;
 }

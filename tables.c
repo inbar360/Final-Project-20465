@@ -10,7 +10,7 @@ struct Data_Table{
     struct Data_Table *next;
 }Data_Table;
 
-/**** Create_Table methods: ****/
+/**** Create_Table method: ****/
 
 struct Data_Table *create_table() {
     struct Data_Table *table = (struct Data_Table *)malloc(sizeof(struct Data_Table));
@@ -53,8 +53,9 @@ void setBinary(struct Data_Table *table, char **binary) {
     }
 }
 
-void setNext(struct Data_Table *table) {
-    table->next = create_data_table();
+void setNext(struct Data_Table *table, struct Data_Table *add) {
+    if (!add) table->next = NULL;
+    table->next = add;
 }
 
 int getValue(struct Data_Table *table) {

@@ -25,8 +25,8 @@ void setData(struct Data_Table *table, char data[]);
 /* This function sets the array of strings of the current table to the given array. */
 void setBinary(struct Data_Table *table, char **binary);
 
-/* This function sets the next of the current table to a new variable of type Data_Table using the create_data_table method. */
-void setNext(struct Data_Table *table);
+/* This function sets the next of the current table to the data_table variable add. */
+void setNext(struct Data_Table *table, struct Data_Table *add);
 
 /* This function returns the value of the current table. */
 int getValue(struct Data_Table *table);

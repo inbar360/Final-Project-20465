@@ -58,6 +58,8 @@
   "files.associations": {
     "string": "c",
     "typeinfo": "c",
-    "array": "c"
+    "array": "c",
+    "pass_functions.h": "c",
+    "utils.h": "c"
   }
 }

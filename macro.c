@@ -6,7 +6,7 @@ struct Macro_Table {
 	struct Macro_Table *next; /* A pointer to the next macro in the list. */
 };
 
-struct Macro_Table *create_table() {
+struct Macro_Table *create_mtable() {
     struct Macro_Table *table = (struct Macro_Table *)malloc(sizeof(struct Macro_Table));
     if (!table) return NULL; /* If the created variable is NULL, meaning memory allocation errors, return NULL. */
     table->name = NULL;
@@ -15,7 +15,7 @@ struct Macro_Table *create_table() {
     return table; /* Set all attributes to NULL and return the pointer. */
 }
 
-void setName (struct Macro_Table *table, char *name) {
+void setmName (struct Macro_Table *table, char *name) {
 	if (!name) {
 		table->name = NULL;
 		return;
@@ -29,7 +29,7 @@ void setName (struct Macro_Table *table, char *name) {
 	strcpy(table->name, name); /* Copy the given name to table's name. */
 }
 
-void setValue (struct Macro_Table *table, char *value) {
+void setmValue (struct Macro_Table *table, char *value) {
 	table->value = (char *)malloc((strlen(value)+1)*sizeof(char));
 	if (!table->value) { /* If the memory allocation failed, exit. */
 		printf("Error: Memory allocation failed.\n");
@@ -38,19 +38,19 @@ void setValue (struct Macro_Table *table, char *value) {
     strcpy(table->value, value); /* Copy the given value to table's value. */
 }
 
-void setNext (struct Macro_Table *table) {
+void setmNext (struct Macro_Table *table) {
     table->next = create_table(); /* Set table's next using the create_table method. */
 }
 
-char *getName(struct Macro_Table *table) {
+char *getmName(struct Macro_Table *table) {
     return table->name; /* Returns the name. */
 }
 
-char *getValue(struct Macro_Table *table) {
+char *getmValue(struct Macro_Table *table) {
     return table->value; /* Returns the value. */
 }
 
-struct Macro_Table *getNext (struct Macro_Table *table) {
+struct Macro_Table *getmNext (struct Macro_Table *table) {
     return table->next; /* Returns the pointer to the next macro. */
 }
 
@@ -76,7 +76,7 @@ char *find_macro_val(struct Macro_Table *head, char *name) {
     return NULL;
 }
 
-void free_table(struct Macro_Table **head) {
+void free_mtable(struct Macro_Table **head) {
 	/* Variable: next - used to save head's next each iteration of the while loop. */
 	struct Macro_Table *next;
 	/* Goes over the table starting with head.

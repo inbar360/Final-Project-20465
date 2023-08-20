@@ -18,7 +18,7 @@ static int process_line(FILE *from, char *line, struct Macro_Table **table, FILE
 
 boolean preprocess(FILE *file, char *name, struct Macro_Table **head, FILE *to) {
     /* Creating the macro table, and setting heads value to table. */
-    struct Macro_Table *table = create_table();
+    struct Macro_Table *table = create_mtable();
     char line[MAX_LINE];
     int process = TRUE;
     boolean errors = FALSE;
@@ -81,21 +81,21 @@ static int process_line(FILE *from, char *line, struct Macro_Table **table, FILE
             free(mcr_name);
             return FALSE;
         }
-        setName((*table), mcr_name); /* Set the current macro name to mcr_name. */
+        setmName((*table), mcr_name); /* Set the current macro name to mcr_name. */
         mcr_value = get_macro_value(from, table, name); /* Get the value of the macro. No need to allocate new memory because the function returns a variable of type char *, which is not freed inside the function. */
         if (mcr_value == NULL) { /* If mcr_value is NULL return FALSE. */
-        	free(getName(*table));
-        	setName((*table), NULL);
+        	free(getmName(*table));
+        	setmName((*table), NULL);
         	free(mcr_name);
             return FALSE;
         } 
-        setValue(*table, mcr_value); /* Sets the value of the current macro to mcr_value. */
+        setmValue(*table, mcr_value); /* Sets the value of the current macro to mcr_value. */
 
         /* Frees the variables we allocated memory for. */
         free(mcr_name);
         free(mcr_value);
-        setNext(*table); /* Allocates memory for the tables next */
-        *table = getNext(*table);
+        setmNext(*table); /* Allocates memory for the tables next */
+        *table = getmNext(*table);
         if (!(*table)) { /* If the value of table is NULL, returns FALSE. */
             printf("Error: Memory allocation failed.\n");
             return FALSE;
