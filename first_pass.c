@@ -15,6 +15,6 @@ void make_line_binary(file first word: st){
             res = make_extern_data(st, line)
       }
     }
-    NEW_LINE(st, i);
+    NEXT_LINE(st, i);
     line++;
 }
