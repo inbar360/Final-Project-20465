@@ -716,15 +716,27 @@ int add_data_data(file string s1, int line){//adds labels of .data type
 
 int is_value_command_legal_label(char* st, &Data_Table curr_node, int line){
     int i = 0, errors_here = 0;
-    while(i < 32 && *(st + i) != '\0' && *(st + i) != ':' && *(st + i) != ' ' && *(st + i) != '\t' && *(st + i) != '\n'){
-        if((*(st + i) > 57 && *(st + i) < 65) || *(st + i) < 48 || (*(st + i) > 90 && *(st + i) < 97) || *(st + i) > 122)
-            printf("///Error in line %d: label name can only contain numbers and English letters (lower and upper case)///", line);
-            return 0;
-        i++;
-    }
-    if(*(st + i) == ':'){
-        i += 2;
-        SKIP_WHITE(st, i);
+        i = SKIP_WHITE(st, i);
+        if(*(st + i) != '.'){
+            int length = i;
+            while(*(st + length) != ':' && length < 33 + i){
+                length++;
+            }
+            if(st[length] != ':'){
+                printf("Error in line %d: label to long", line);
+                ERRORS++;
+                errors_here++;
+            }
+            else
+                i = ++length;
+            if(st[i] != ' ' && st[i] != '\t' && st[i] != '\n'){
+                printf("Error in line %d: no seperation bitween label and command", line);
+                ERRORS++;
+                errors_here++;
+            }
+            i = SKIP_WHITE(st, i);
+        }
+        
         if(*(st + i) != '.'){
             printf("Error in line %d: no function after label");
             ERRORS++;
@@ -1363,12 +1375,5 @@ int is_value_command_legal_label(char* st, &Data_Table curr_node, int line){
             return 1;
         }
 
-        return 2;
-    }
-    else if(i == 32){
-        printf("///Error in line %d: label longer then the maximum length of 32///", line);
-    }
-    else{
-        printf("///Error in line %d: no ':' in the declaration of the label", line);
-    }     
+        return 2;  
 }
