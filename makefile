@@ -5,7 +5,7 @@ EXE_DEPS = assembler.o utils.o macro.o preprocessor.o tables.o pass_functions.o 
 assembler: $(EXE_DEPS) $(GLOBAL_DEPS)
 	gcc -g $(EXE_DEPS) $(FLAGS) -o $@
 
-assembler.o: assembler.c globals.h utils.h macro.h preprocessor.h
+assembler.o: assembler.c globals.h utils.h macro.h preprocessor.h sec_pass.h output_files.h tables.h
 	gcc -c assembler.c $(FLAGS) -o $@
 
 utils.o: utils.c utils.h globals.h

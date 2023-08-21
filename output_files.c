@@ -9,8 +9,8 @@ static boolean create_ext(char *name, struct Data_Table *head);
 /* This function creates the object file and writes into it. */
 static boolean create_ob(char *name, int ic, int dc, struct Data_Table *head);
 
-boolean create_files(char *name, int *ic, int dc, struct Data_Table *data_table) {
-    return create_ent(name, data_table) && create_ext(name, data_table) && create_ob(name, *ic, dc, data_table);
+boolean create_files(char *name, int ic, int dc, struct Data_Table *data_table) {
+    return create_ent(name, data_table) && create_ext(name, data_table) && create_ob(name, ic, dc, data_table);
 }
 
 static boolean create_ent(char *name, struct Data_Table *head) {
@@ -112,7 +112,7 @@ static boolean create_ob(char *name, int ic, int dc, struct Data_Table *head) {
         }
         curr = getNext(curr); /* Set curr to the next in the list. */
     }
-    
+
     free(new_name); 
     fclose(ob);
     return TRUE; /* Free new name, close the file, and return TRUE. */

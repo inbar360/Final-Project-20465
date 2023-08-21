@@ -1,7 +1,7 @@
 #include "utils.h"
 #include "preprocessor.h"
 #include "macro.h"
-#include "second_pass.h"
+#include "sec_pass.h"
 #include "output_files.h"
 #include "first_pass.h"
 #include "tables.h"
