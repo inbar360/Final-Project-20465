@@ -1,9 +1,8 @@
 #include "pass_functions.h"
 
-struct Data_Table *data_head;
-int IC = 0, DC = 0, counter = 0, ERRORS = 0;
+int ERRORS = 0;
 
-int is_label(char st[]) {
+boolean is_label(char st[]) {
     int i = 0;
     while(i < 32 && !END_CHAR(st, i) && *(st + i) != ':' && !IS_WHITE(st, i)){
         if(!isalnum(*(st + i))) /* If the char is not a valid label-name char, return FALSE. */
@@ -14,7 +13,7 @@ int is_label(char st[]) {
     return FALSE;
 }
 
-int in_list(struct Data_Table *dt, char str[]) {
+boolean in_list(struct Data_Table *dt, char str[]) {
     struct Data_Table *dt1= dt;
     while(dt1 != NULL) { /* While dt1 is not NULL */
         if(strcmp(str, getData(dt1)) == 0) { /* If the string appears in the list, return TRUE. */
@@ -184,11 +183,11 @@ char *make_command_binary(char *st) {
     return binary; /* Return the finalized binary array. */
 }
 
-int make_memory_of_command_label(char *st, int line) {
+int make_memory_of_command_label(char *st, int line, struct Data_Table *data_head, int *IC, int *counter) {
     int errors_here = 0, length = 0, i = 0, white;
     char lab[LABEL_LENGTH];
     struct Data_Table *curr = data_head, *new;
-    for(i = 0; i < counter; i++) { /* Going to the next empty node */
+    for(i = 0; i < *counter; i++) { /* Going to the next empty node */
         curr = getNext(curr);
     }
     
@@ -258,25 +257,25 @@ int make_memory_of_command_label(char *st, int line) {
         setType(new, 'C'); /* Set to a type that's different than a command with label. */
         setLength(new, length); /* Set new's length. */
 
-        if(counter == 0) { /* If the list is empty, set new's value to 100, and set data_head to new. */
+        if(*counter == 0) { /* If the list is empty, set new's value to 100, and set data_head to new. */
             setValue(new, IC_INIT_VAL);
             data_head = new;
         }
         else { /* If the list is not empty, set the value of new based on IC, and set new as curr's next. */
-            setValue(new, 100+IC);
+            setValue(new, 100+(*IC));
             setNext(curr, new);
         }
-        IC += length; /* Add to IC the amount of operands of the line. */
-        counter++; /* Add 1 to counter, indicating that we have at least one data_table variable in the list. */
+        (*IC) += length; /* Add to IC the amount of operands of the line. */
+        (*counter)++; /* Add 1 to counter, indicating that we have at least one data_table variable in the list. */
         return 3; /* done succesfully */
     }
 
 }
 
-int make_memory_of_command(char *st, int line) {
+int make_memory_of_command(char *st, int line, struct Data_Table *data_head, int *IC, int *counter) {
     int errors_here = 0, length = 0, i;
     struct Data_Table *curr = data_head, *new;
-    for(i = 0; i < counter; i++) { /* Pointing to the next empty node. */
+    for(i = 0; i < *counter; i++) { /* Pointing to the next empty node. */
         curr = getNext(curr);
     }
     i = 0;
@@ -290,7 +289,7 @@ int make_memory_of_command(char *st, int line) {
     else
         i += 4; /* Add 4 to i. */
     if(*(st + i) != ' ' || *(st + i) != '\t' || *(st + i) != '\n') { /* If there's no seperation, add to erros_here + errors. */
-        printf("Error: no seperation bitween label and operands");
+        printf("Error in line %d: no seperation bitween label and operands", line);
         errors_here++;
         ERRORS++;
     }
@@ -324,27 +323,27 @@ int make_memory_of_command(char *st, int line) {
     setType(new, 'c');
     setLength(new, length);
     
-    if(counter == 0) { /* If the list is empty set value to 100 (initial value), and data_head to new. */
+    if(*counter == 0) { /* If the list is empty set value to 100 (initial value), and data_head to new. */
         setValue(new, 100);
         data_head = new;
     }
     else{ /* If the list is not empty, set value based on IC, and set new to curr's next. */
-        setValue(new, 100 + IC);
+        setValue(new, 100 + (*IC));
         setNext(curr, new);
     }
-    IC += length; /* Add to IC based on length, add 1 to counter. */
-    counter++;
+    (*IC) += length; /* Add to IC based on length, add 1 to counter. */
+    (*counter)++;
     return 3; /* Return 3 if finished succesfully. */
 }
 
-int add_extern_data(char *st, int line) {
-    int i = 0, errors_here = 0, l = 0, z, DC_here = DC;
+int add_extern_data(char *st, int line, struct Data_Table *data_head, int *DC, int *counter) {
+    int i = 0, errors_here = 0, l = 0, z, DC_here = *DC;
     int j = 0, in_list = 0, data_count = 0, m;
     int legal = 1;
     char name[LABEL_LENGTH];
     struct Data_Table *data, *data_temp = data;
     struct Data_Table *curr = data_head, *temp = data_head, *new;
-    for(i = 0; i < counter; i++){ /* Setting curr to the next empty node. */
+    for(i = 0; i < *counter; i++){ /* Setting curr to the next empty node. */
         curr = getNext(curr);
     }
     SKIP_WHITE(st, i);
@@ -376,7 +375,7 @@ int add_extern_data(char *st, int line) {
 
             SKIP_NON_WHITE(st, l);
 
-            while((j < counter) && (in_list = 0)) { /* Going over the list until encountering the label name/ reached the end of the list. */
+            while((j < *counter) && (in_list = 0)) { /* Going over the list until encountering the label name/ reached the end of the list. */
                 if((strncmp(getData(temp), st + i, l-i) == 0) && (strlen(getData(temp)) == l-i)){
                     in_list = 1; /* If the label appears in the list, print error and add to errors variables. */
                     printf("Error in line %d: declared an existing internal label external", line);
@@ -438,26 +437,26 @@ int add_extern_data(char *st, int line) {
 
         data_temp = data;
         for (i = 0; i < data_count; i++) {
-            if (counter == 0) {
+            if (*counter == 0) {
                 data_head = data_temp;
-                counter++;
+                (*counter)++;
             }
             else {
                 setNext(curr, data_temp);
                 curr = getNext(curr);
-                counter++;
+                (*counter)++;
             }
             data_temp = getNext(data_temp);
         }
 
-        DC = DC_here;
+        *DC = DC_here;
         return 1;
     }
     else
         return 2; /* Return 2 if not extern. */
 }
 
-int mark_label_entry(char *st, int line) { /* Second pass function */
+int mark_label_entry(char *st, int line, struct Data_Table *data_head, int *counter) { /* Second pass function */
     int i = 0, errors_here = 0, l, z, legal;
     int j = 0, in_list = 0;
     Data_Table *curr = data_head, *temp = data_head; 
@@ -488,7 +487,7 @@ int mark_label_entry(char *st, int line) { /* Second pass function */
             SKIP_NON_WHITE(st, l);
             j = 0, in_list = 0, legal = 1;
             
-            while((j < counter) && (in_list == 0)) { /* Checking if the label name appears in the list. */
+            while((j < *counter) && (in_list == 0)) { /* Checking if the label name appears in the list. */
                 if((strncmp(getData(temp), st + i, l-i) == 0) && (strlen(getData(temp)) == l-i)) {
                     in_list = 1;
                     printf("Error in line %d: declared an existing internal label external", line);
@@ -511,14 +510,14 @@ int mark_label_entry(char *st, int line) { /* Second pass function */
             }
 
             if(getType(curr) == "x") { /* If the label appears as external, print error. */
-                printf("Error in line %d: tried to declare an external label an entry");
+                printf("Error in line %d: tried to declare an external label an entry", line);
                 ERRORS++;
                 errors_here++;
             }
             if(errors_here > 0) /* If ran into errors, return 0. */
                 return 0;
             if (!in_list) {
-                printf("Error in line %d: tried declaring a non-existent label as entry");
+                printf("Error in line %d: tried declaring a non-existent label as entry", line);
                 ERRORS++;
                 errors_here++;
             }
@@ -533,14 +532,14 @@ int mark_label_entry(char *st, int line) { /* Second pass function */
     return 2;
 }
 
-int add_string_data(char *st, int line){/*adds labels of .string type*/
+int add_string_data(char *st, int line, struct Data_Table *data_head, int *DC, int *counter){/*adds labels of .string type*/
     Data_Table *curr = data_head, *new;
     char lab[LABEL_LENGTH], temp[12];
     char bin[MAX_MEMORY][BITS];
     int i, white, k;
     int errors_here = 0;
     int start, end, length = 0;
-    for(i = 0; i < counter; i++){ /*going to the next empty node*/
+    for(i = 0; i < *counter; i++){ /*going to the next empty node*/
         curr = getNext(curr);
     }
 
@@ -557,7 +556,7 @@ int add_string_data(char *st, int line){/*adds labels of .string type*/
         
         char* string = (char*) malloc(sizeof(char));
         if(*(st + (i + 1)) != ' ' || *(st + (i + 1)) != '\t'){/*check if there is a space after the label*/
-            printf("Error: no seperation bitween label and operands");
+            printf("Error on line %d: no seperation bitween label and operands", line);
             errors_here++;
             ERRORS++;
             i++;
@@ -630,16 +629,16 @@ int add_string_data(char *st, int line){/*adds labels of .string type*/
                 free(new);
                 return 0;/* means that there were errors */
             }
-            if(counter == 0){
+            if(*counter == 0){
                 setValue(new, 100);
                 data_head = new;
             }
             else{
-                setValue(new, 100+DC);
+                setValue(new, 100+(*DC));
                 setNext(curr, new);
             }
-            DC += length + 1;/*plus 1 is for the NULL terminator */
-            counter++;/* seccesfully added a data table node */
+            *DC += length + 1;/*plus 1 is for the NULL terminator */
+            (*counter)++;/* seccesfully added a data table node */
             return 3;/* means that it succesfully added the data */
         }
         return 2;/*means that the label is not for string */
@@ -656,7 +655,7 @@ int add_string_data(char *st, int line){/*adds labels of .string type*/
 }
 
 
-int add_data_data(char *st, int line){//adds labels of .data type
+int add_data_data(char *st, int line, struct Data_Table *data_head, int *DC, int *counter){//adds labels of .data type
     struct Data_Table* curr = data_head, *new;
     int i, errors_here = 0, minus = 0, k;
     int curr_num, digits;
@@ -664,7 +663,7 @@ int add_data_data(char *st, int line){//adds labels of .data type
     int data_values[MAX_MEMORY];
     char lab[LABEL_LENGTH], temp[BITS];
     char bin[MAX_MEMORY][BITS];
-    for(i = 0; i < counter; i++){ //going to the next empty node
+    for(i = 0; i < *counter; i++){ //going to the next empty node
         curr = getNext(curr);
     }
 
@@ -679,7 +678,7 @@ int add_data_data(char *st, int line){//adds labels of .data type
     }
     if(*(st + i) == ':'){
         if(*(st + (i + 1)) != ' ' || *(st + (i + 1)) != '\t'){
-            printf("Error: no seperation bitween label and operands");
+            printf("Error on line %d: no seperation bitween label and operands", line);
             errors_here++;
             ERRORS++;
             i++;
@@ -750,16 +749,16 @@ int add_data_data(char *st, int line){//adds labels of .data type
                 free(new);
                 return 0;//means that there were errors
             }
-            if(counter == 0){
+            if(*counter == 0){
                 setValue(new, 100);
                 data_head = new;
             }
             else{
-                setValue(new, 100+DC);
+                setValue(new, 100+(*DC));
                 setNext(curr, new);
             }
-            DC += d_counter;
-            counter++;
+            *DC += d_counter;
+            (*counter)++;
             return 3;//success
         }
         return 2;//not for data
@@ -774,7 +773,7 @@ int add_data_data(char *st, int line){//adds labels of .data type
 }
 
 
-int make_command(char *st, struct Data_Table *curr_node, int line){ /* Second pass function */
+int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_Table *data_head, int *counter){ /* Second pass function */
     int i = 0, errors_here = 0;
     int l = 0, m = 0, only_num = 1, neg = 0;
     int in = 0, j = 0, l, k = 0, z;
@@ -860,7 +859,7 @@ int make_command(char *st, struct Data_Table *curr_node, int line){ /* Second pa
             SKIP_NON_WHITE(st, l);
             in = 0, j = 0;
             
-            while(j < counter && in != 1){
+            while(j < *counter && in != 1){
                 if(strncmp(getData(temp_data), st + i, l) == 0)
                     in = 1;
                 else{
@@ -965,7 +964,7 @@ int make_command(char *st, struct Data_Table *curr_node, int line){ /* Second pa
                 l++;
             int in = 0, j = 0;
             
-            while(j < counter && in != 1){
+            while(j < *counter && in != 1){
                 if(strncmp(getData(temp_data), st + i, l) == 0)
                     in = 1;
                 else{
@@ -1046,7 +1045,7 @@ int make_command(char *st, struct Data_Table *curr_node, int line){ /* Second pa
         while(*(st + i) != ' ' && *(st + i) != '\t' && *(st + i) != '\n')
             l++;
         in = 0, j = 0;
-        while(j < counter && in != 1){
+        while(j < *counter && in != 1){
             if(strncmp(getData(temp_data), st + i, l) == 0)
                 in = 1;
             else{
@@ -1086,7 +1085,7 @@ int make_command(char *st, struct Data_Table *curr_node, int line){ /* Second pa
                 l++;
             in = 0, j = 0;
             temp = data_head;
-            while(j < counter && in != 1){
+            while(j < *counter && in != 1){
                 if(strncmp(getData(temp_data), st + i, l) == 0)
                     in = 1;
                 else{
@@ -1198,7 +1197,7 @@ int make_command(char *st, struct Data_Table *curr_node, int line){ /* Second pa
             while(*(st + i) != ' ' && *(st + i) != '\t' && *(st + i) != '\n')
                 l++;
             in = 0, j = 0;
-            while(j < counter && in != 1){
+            while(j < *counter && in != 1){
                 if(strncmp(getData(temp_data), st + i, l) == 0)
                     in = 1;
                 else{
@@ -1253,7 +1252,7 @@ int make_command(char *st, struct Data_Table *curr_node, int line){ /* Second pa
                 l++;
             in = 0, j = 0;
             
-            while(j < counter && in != 1){
+            while(j < *counter && in != 1){
                 if(strncmp(getData(temp_data), st + i, l) == 0)
                     in = 1;
                 else{
@@ -1370,7 +1369,7 @@ int make_command(char *st, struct Data_Table *curr_node, int line){ /* Second pa
                 l++;
             in = 0, j = 0;
 
-            while(j < counter && in != 1){
+            while(j < *counter && in != 1){
                 if(strncmp(getData(temp_data), st + sizeof(char) * i, l) == 0)
                     in = 1;
                 else{
@@ -1456,7 +1455,7 @@ int make_command(char *st, struct Data_Table *curr_node, int line){ /* Second pa
             while(*(st + i) != ' ' && *(st + i) != '\t' && *(st + i) != '\n')
                 l++;
             in = 0, j = 0;
-            while(j < counter && in != 1){
+            while(j < *counter && in != 1){
                 if(strncmp(getData(temp_data), st + sizeof(char) * i, l) == 0)
                     in = 1;
                 else{

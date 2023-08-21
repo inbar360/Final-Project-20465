@@ -73,7 +73,7 @@ static boolean process_file(char *file_name) {
     }
     
     for (line = 1; fgets(st, MAX_LINE, am) != NULL; line++) {
-        firstpass_line(st, line);
+        firstpass_line(st, line, data_head);
     }
 
     rewind(am); /* Before the second pass, set the file position to the beginning of the file. */
