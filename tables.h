@@ -1,3 +1,5 @@
+#ifndef _TABLES_H
+#define _TABLES_H
 #include "globals.h"
 
 typedef struct Data_Table Data_Table;
@@ -49,3 +51,5 @@ struct Data_Table *getNext(struct Data_Table *table);
 
 /* This function frees each Data_Table nodes attributes, and then the node itself. */
 void free_data_table(struct Data_Table **head);
+
+#endif

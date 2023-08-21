@@ -184,7 +184,7 @@ char *make_command_binary(char *st) {
     return binary; /* Return the finalized binary array. */
 }
 
-int make_memory_of_command_label(char *st) {
+int make_memory_of_command_label(char *st, int line) {
     int errors_here = 0, length = 0, i = 0, white;
     char lab[LABEL_LENGTH];
     struct Data_Table *curr = data_head, *new;
@@ -204,7 +204,7 @@ int make_memory_of_command_label(char *st) {
 
     if(*(st + i) == ':') { /* If the char is ':' */
         if(*(st + (i + 1)) != ' ' || *(st + (i + 1)) != '\t') { /* If the next char is not a white char, print error. */
-            printf("Error: no seperation bitween label and operands");
+            printf("Error on line %d: no seperation bitween label and operands", line);
             errors_here++; /* add 1 to errors_here, errors, and i. */
             ERRORS++;
             i++;
@@ -222,7 +222,7 @@ int make_memory_of_command_label(char *st) {
         else
             i += 3; /* Add 3 to i. */
         if(*(st + i) != ' ' || *(st + i) != '\t' || *(st + i) != '\n'){
-            printf("Error: no seperation bitween command and operands");
+            printf("Error on line %d: no seperation bitween command and operands", line);
             errors_here++; /* Add 1 to errors_here and errors. */
             ERRORS++;
         }
@@ -238,7 +238,7 @@ int make_memory_of_command_label(char *st) {
         SKIP_NON_WHITE(st, i);
         SKIP_WHITE(st, i);
         if(*(st + i) != '\n') { /* If there's another operand, print error, and add to errors_here and errors. */
-            printf("Error: too many operands");
+            printf("Error on line %d: too many operands", line);
             errors_here++;
             ERRORS++;
         }
@@ -273,7 +273,7 @@ int make_memory_of_command_label(char *st) {
 
 }
 
-int make_memory_of_command(char *st) {
+int make_memory_of_command(char *st, int line) {
     int errors_here = 0, length = 0, i;
     struct Data_Table *curr = data_head, *new;
     for(i = 0; i < counter; i++) { /* Pointing to the next empty node. */

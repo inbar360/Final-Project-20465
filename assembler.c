@@ -3,6 +3,7 @@
 #include "macro.h"
 #include "second_pass.h"
 #include "output_files.h"
+#include "first_pass.h"
 #include "tables.h"
 
 static boolean process_file(char *name);
@@ -29,7 +30,8 @@ static boolean process_file(char *file_name) {
     struct Data_Table *data_head = NULL;
     char *new_name = strcat_name(file_name, ".am"); /* Using strcat_name function from "utils.c" to create the new name. */
     boolean prepro, secpass;
-    int ic = 0, dc = 0;
+    char st[MAX_LINE];
+    int ic = 0, dc = 0, line;
 
     if (!new_name) {
         printf("Error: Memory allocation failed.\n");
@@ -69,11 +71,10 @@ static boolean process_file(char *file_name) {
         free_table(&head);
         return FALSE;
     }
-    /* FIRST PASS HERE
-        - in function first_pass:
-            1. string
-            2. if returned 1 - make data
-            3. ..... */
+    
+    for (line = 1; fgets(st, MAX_LINE, am) != NULL; line++) {
+        firstpass_line(st, line);
+    }
 
     rewind(am); /* Before the second pass, set the file position to the beginning of the file. */
     secpass = sec_pass(am, new_name, data_head, &ic);
