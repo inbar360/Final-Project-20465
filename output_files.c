@@ -34,7 +34,7 @@ static boolean create_ent(char *name, struct Data_Table *head) {
     }
 
     do { /* We know the head is not NULL */
-        if (getType(curr) == 'e') { /* If the current type is 'e', meaning entry, print the name + value. */
+        if (getType(curr) == 'e' || getType(curr) == 'F') { /* If the current type is 'e', meaning entry, print the name + value. */
             fprintf(ent, "%s %d\n", getData(curr), getValue(curr));
         }
         curr = getNext(curr); /* Set curr to the next in the list. */
