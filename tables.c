@@ -40,7 +40,7 @@ void setType(struct Data_Table *table, char type) {
 
 void setData(struct Data_Table *table, char data[]) {
     int i;
-    for (i = 0; i < LABEL_LENGTH; i++) {
+    for (i = 0; i < strlen(data); i++) {
         table->data[i] = data[i];
     }
 }
