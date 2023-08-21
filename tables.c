@@ -45,10 +45,10 @@ void setData(struct Data_Table *table, char data[]) {
     }
 }
 
-void setBinary(struct Data_Table *table, char *binary[12]) {
+void setBinary(struct Data_Table *table, char *binary[BITS]) {
     int i;
 
-    for (i = 0; i < strlen(binary) / 12; i++) {
+    for (i = 0; i < (strlen(binary) / 12); i++) {
         strcpy(table->binary[i], binary[i]);
     }
 }
