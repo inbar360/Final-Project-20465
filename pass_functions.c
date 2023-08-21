@@ -1,7 +1,5 @@
 #include "pass_functions.h"
 
-int ERRORS = 0;
-
 boolean is_label(char st[]) {
     int i = 0;
 
@@ -87,9 +85,8 @@ void make_binary(int n, int line, char *bits) {
     int carry = 1;
 
     if(n > 2047 || n < -2048) { /* If the integer is either too large or too small. */
-        n > 2047 ? printf("Error int line %d: integer too large | maximum size is 2047", line) : printf("Error int line %d: integer too small | minimum size is -2048", line);
-
-        ERRORS++; /* Add 1 to errors. */
+        n > 2047 ? printf("Error on line %d: integer too large | maximum size is 2047", line) : printf("Error on line %d: integer too small | minimum size is -2048.\n", line);
+ /* Add 1 to errors. */
         return; /* Return. */
     }
 
@@ -180,20 +177,14 @@ char *organization_type(char *op) {
 
     if(i > LABEL_LENGTH) { /* If the length of the operand is larger than 32, print error, add 1 to errors and return NULL. */
 
-        printf("Error: non legal operand");
-
-        ERRORS++;
-
+        printf("Error: non legal operand.\n");
         return NULL;
 
     }
 
-    if(flag == 1) { /* If the label name is not valid, print error, add 1 to errors. */
+    if(flag == 1) { /* If the label name is not valid, print error. */
 
-        printf("Error: non legal operand");
-
-        ERRORS++;
-
+        printf("Error: non legal operand.\n");
         return NULL;
 
     }
@@ -206,83 +197,87 @@ char *organization_type(char *op) {
 
 char *make_command_binary(char *st, char binary[12]) {
 
-    char /*binary[12], */*command , *fir_op, *sec_op, ARE[2] = "00";
+    char *command , *fir_op, *sec_op, ARE[2] = "00";
 
     int i = 0;
-
+	int labelidx = 0;
     int j = 0;
 
     SKIP_WHITE(st, i); /* Get to the first non-white char of the line. */
-
-    if(st[i] != '.'){ /* If it's not '.', skip the first word. */
-
-        SKIP_NON_WHITE(st, i);
-
-        SKIP_WHITE(st, i);
-
-        command = opcode_in_binary(st + i); /* Use opcode_in_binary function to save the wanted chars. */
-
-    }
-
-    else
-
-        command = opcode_in_binary(st + i); /* Use opcode_in_binary function to save the wanted chars. */
-
+	if (is_label(st)) {
+		labelidx = i;
+		while(*(st+labelidx) != ':')
+			labelidx++;
+		
+		command = opcode_in_binary(st + labelidx);
+	}
+	
+    else 
+    	command = opcode_in_binary(st + i); /* Use opcode_in_binary function to save the wanted chars. */
+	
+	if (!command) {
+		printf("Error: undefined command name.\n");
+		return NULL;
+	}
+    
+    if (labelidx != 0)
+    	i = labelidx+1;
+    	
     SKIP_NON_WHITE(st, i); /* Skip the first word. */
 
     SKIP_WHITE(st, i);
 
     if(!END_CHAR(st, i)) /* If we have not yet reached the end of the line, set fir_op. */
-
         fir_op = organization_type(st + i);
 
     SKIP_NON_WHITE(st, i); /* Skipe the first operand. */
-
     SKIP_WHITE(st, i);
 
-
-
     if(!END_CHAR(st, i))
-
         sec_op = organization_type(st + i); /* Set sec_op using organization_type method. */
 
-
-
-    if (!fir_op || !sec_op) { /* If either of them is NULL, return NULL. */
-
+    if (!fir_op) { /* If fir_op is NULL, return NULL. */
         return NULL;
-
     }
 
-
-
-    for(;j < 3; j++) { /* Add the first operand value to binary array. */
-
-        binary[j] = fir_op[j];
-
-    }
-
+	else if (!sec_op) {
+		
+		for(;j < 3; j++) { /* Add the first operand value to binary array. */
+        	binary[j] = '0';
+    	}
+			
+	}
+	
+	
+    else {
+    	for(;j < 3; j++) { /* Add the first operand value to binary array. */
+        	binary[j] = sec_op[j];
+    	}
+	}
+	
+	printf("fir is: '%s', command is: '%s'\n", fir_op, command);
+	
     for(;j < 7; j++) { /* Add command value to binary array. */
-
-        binary[j] = command[j];
+        binary[j] = command[j-3];
 
     }
 
     for(; j < 10; j++) { /* Add second operand value to binary array. */
 
-        binary[j] = sec_op[j];
+        binary[j] = fir_op[j-7];
 
     }
+    
+    printf("bin: '%s'\n", binary);
 
     for(; j < 12; j++) { /* Add ARE value to binary array. */
 
-        binary[j] = ARE[j];
+        binary[j] = ARE[j-10];
 
     }
-
-
-
-    return binary; /* Return the finalized binary array. */
+    
+    printf("returning: '%s'\n", binary);
+    return binary;
 
 }
 
@@ -307,9 +302,9 @@ int make_memory_of_command_label(char *st, int line, struct Data_Table *data_hea
 
     if(*(st + i) == ':') { /* If the char is ':' */
         if(*(st + (i + 1)) != ' ' || *(st + (i + 1)) != '\t') { /* If the next char is not a white char, print error. */
-            printf("Error on line %d: no seperation bitween label and operands", line);
+            printf("Error on line %d: no seperation between label and operands.\n", line);
             errors_here++; /* add 1 to errors_here, errors, and i. */
-            ERRORS++;
+
             i++;
         }
         else
@@ -327,9 +322,9 @@ int make_memory_of_command_label(char *st, int line, struct Data_Table *data_hea
             i += 3; /* Add 3 to i. */
 
         if(*(st + i) != ' ' || *(st + i) != '\t' || *(st + i) != '\n'){
-            printf("Error on line %d: no seperation between command and operands", line);
+            printf("Error on line %d: no seperation between command and operands.\n", line);
             errors_here++; /* Add 1 to errors_here and errors. */
-            ERRORS++;
+
         }
 
         SKIP_WHITE(st, i); /* Skip the white chars. */
@@ -346,16 +341,16 @@ int make_memory_of_command_label(char *st, int line, struct Data_Table *data_hea
         SKIP_WHITE(st, i);
 
         if(*(st + i) != '\n') { /* If there's another operand, print error, and add to errors_here and errors. */
-            printf("Error on line %d: too many operands", line);
+            printf("Error on line %d: too many operands.\n", line);
             errors_here++;
-            ERRORS++;
+
         }
 
         new = create_table();
         if(!new) { /* If ran into memory issues, add to errors_here = errors. */
-            printf("Error: memory allocation failed");
+            printf("Error: memory allocation failed.\n");
             errors_here++;
-            ERRORS++;
+
         }
 
         if(errors_here > 0) { /* If there was at least one errors, return 0. */
@@ -383,7 +378,7 @@ int make_memory_of_command_label(char *st, int line, struct Data_Table *data_hea
     }
 
     else {
-        printf("Error on line %d: no seperation between command and operands", line);
+        printf("Error on line %d: no seperation between command and operands.\n", line);
         return 0;
     }
 }
@@ -412,9 +407,8 @@ int make_memory_of_command(char *st, int line, struct Data_Table *data_head, int
         i += 4; /* Add 4 to i. */
 
     if(*(st + i) != ' ' || *(st + i) != '\t' || *(st + i) != '\n') { /* If there's no seperation, add to erros_here + errors. */
-        printf("Error in line %d: no seperation bitween label and operands", line);
+        printf("Error in line %d: no seperation between label and operands.\n", line);
         errors_here++;
-        ERRORS++;
     }
 
     SKIP_WHITE(st, i); /* Skip white chars */
@@ -429,18 +423,17 @@ int make_memory_of_command(char *st, int line, struct Data_Table *data_head, int
             SKIP_WHITE(st, i); /* Skip white chars. */
 
             if(*(st + i) != '\n') {
-                printf("Error: too many operands"); /* Print error, and add to errors_here + errors. */
+                printf("Error on line %d: too many operands.\n", line); /* Print error, and add to errors_here + errors. */
                 errors_here++;
-                ERRORS++;
+    
             }
         }
     }
 
     new = create_table();
     if(!new) { /* If ran into memory issues, print and add to errors variables. */
-        printf("Error: could not allocate mamory for data");
+        printf("Error: could not allocate mamory for data.\n");
         errors_here++;
-        ERRORS++;
     }
     if(errors_here > 0) { /* Return 0 if ran into any errors. */
         return 0;
@@ -485,7 +478,7 @@ int add_extern_data(char *st, int line, struct Data_Table *data_head, int *DC, i
 
     char name[LABEL_LENGTH];
 
-    struct Data_Table *data, *data_temp = data;
+    struct Data_Table *data = NULL, *data_temp = data;
 
     struct Data_Table *curr = data_head, *temp = data_head, *new;
 
@@ -509,9 +502,8 @@ int add_extern_data(char *st, int line, struct Data_Table *data_head, int *DC, i
 
     if(*(st + ++i) != ' ' && *(st + i) != '\t') { /* If after the ':' there's no white char, print errors. */
 
-        printf("Error in line %d: no seperation bitween label and command", line);
+        printf("Error in line %d: no seperation between label and command.\n", line);
 
-        ERRORS++;
 
         errors_here++;
 
@@ -527,9 +519,9 @@ int add_extern_data(char *st, int line, struct Data_Table *data_head, int *DC, i
 
         if(*(st + i) != '\t' && *(st + i) != ' '){ /* Check if there is a space aftre the command. */
 
-            printf("Error in line %d: no seperation bitween command and operands", line);
+            printf("Error in line %d: no seperation between command and operands.\n", line);
 
-            ERRORS++;
+
 
             errors_here++;
 
@@ -559,9 +551,9 @@ int add_extern_data(char *st, int line, struct Data_Table *data_head, int *DC, i
 
                     in_list = 1; /* If the label appears in the list, print error and add to errors variables. */
 
-                    printf("Error in line %d: declared an existing internal label external", line);
+                    printf("Error in line %d: declared an existing internal label external.\n", line);
 
-                    ERRORS++;
+        
 
                     errors_here++;
 
@@ -577,9 +569,9 @@ int add_extern_data(char *st, int line, struct Data_Table *data_head, int *DC, i
 
             if((l-i) > LABEL_LENGTH) { /* If the label name is too long, print error, add to errors variables, and set legal to 0. */
 
-                printf("Error in line %d: label length longer than maximum of 32 letter", line);
+                printf("Error in line %d: label length longer than maximum of 32 letter.\n", line);
 
-                ERRORS++;
+    
 
                 errors_here++;
 
@@ -593,9 +585,9 @@ int add_extern_data(char *st, int line, struct Data_Table *data_head, int *DC, i
 
                 if(!isalnum(*(st + m))) {
 
-                    printf("Error in line %d: label name is not legal", line);
+                    printf("Error in line %d: label name is not legal.\n", line);
 
-                    ERRORS++;
+        
 
                     errors_here++;
 
@@ -717,7 +709,7 @@ int add_extern_data(char *st, int line, struct Data_Table *data_head, int *DC, i
 
 int mark_label_entry(char *st, int line, struct Data_Table *data_head, int *counter) { /* Second pass function */
 
-    int i = 0, errors_here = 0, l, legal;
+    int i = 0, errors_here = 0, l;
 
     int j = 0, in_list = 0;
 
@@ -728,43 +720,26 @@ int mark_label_entry(char *st, int line, struct Data_Table *data_head, int *coun
     if(is_label(st + i)){
 
         while(*(st + i) != ':')
-
             i++;
-
+        
+        if(*(st + ++i) != ' ' && *(st + i) != '\t') { /* Print error and add to errors variables. */
+        	printf("Error in line %d: no seperation between label and command.\n", line);
+        	errors_here++;
+        	return 0;
+    	}
+    	SKIP_WHITE(st,i); /* Skip white chars. */
     }
-
-    if(*(st + ++i) != ' ' && *(st + i) != '\t') { /* Print error and add to errors variables. */
-
-        printf("Error in line %d: no seperation between label and command", line);
-
-        ERRORS++;
-
-        errors_here++;
-
-    }
-
-    else
-
-        SKIP_WHITE(st,i); /* Skip white chars. */
-
-
 
     if(strncmp(st + i, ".entry", 6) == 0) { 
 
         i += 6; /* Skip ".entry" */
 
         if(*(st + i) != '\t' && *(st + i) != ' ') { /* Check if there is a space aftre the command */
-
-            printf("Error in line %d: no seperation between command and operands", line);
-
-            ERRORS++;
-
-            errors_here++;
-
+            printf("Error in line %d: no seperation between command and operands.\n", line);
+			errors_here++;
         }
 
         else
-
             SKIP_WHITE(st, i); /*if there is a space after the command skip it*/
 
         while(st[i] != '\n') {
@@ -773,100 +748,54 @@ int mark_label_entry(char *st, int line, struct Data_Table *data_head, int *coun
 
             SKIP_NON_WHITE(st, l);
 
-            j = 0, in_list = 0, legal = 1;
-
-            
-
+            j = 0, in_list = 0;
             while((j < *counter) && (in_list == 0)) { /* Checking if the label name appears in the list. */
-
                 if((strncmp(getData(temp), st + i, l-i) == 0) && (strlen(getData(temp)) == l-i)) {
-
                     in_list = 1;
-
-                    printf("Error in line %d: declared an existing internal label external", line);
-
-                    ERRORS++;
-
+                    printf("Error in line %d: declared an existing internal label external.\n", line);
                     errors_here++;
-
                 }
 
                 temp = getNext(temp);
-
                 j++;
-
             }
-
-
 
             if(l - i > 32){
-
-                printf("Error in line %d: label length longer than maximum of 32 letter", line);
-
-                ERRORS++;
-
+                printf("Error in line %d: label length longer than maximum of 32 letter.\n", line);
                 errors_here++;
-
-                legal = 0;
-
             }
-
-            
 
             for(i = 0; i < j; i++) { /* Setting curr to the node with the wanted name. */
-
                 curr = getNext(curr);
-
             }
 
-
-
-            if(getType(curr) == 'x') { /* If the label appears as external, print error. */
-
-                printf("Error in line %d: tried to declare an external label an entry", line);
-
-                ERRORS++;
-
-                errors_here++;
-
+			if(getType(curr) == 'x') { /* If the label appears as external, print error. */
+                printf("Error in line %d: tried to declare an external label an entry.\n", line);
+				errors_here++;
             }
 
             if(errors_here > 0) /* If ran into errors, return 0. */
-
                 return 0;
 
             if (!in_list) {
-
-                printf("Error in line %d: tried declaring a non-existent label as entry", line);
-
-                ERRORS++;
-
-                errors_here++;
-
+                printf("Error in line %d: tried declaring a non-existent label as entry.\n", line);
+				errors_here++;
             }
 
             else if(getType(curr) == 'c')
-
                 setType(curr, 'E');
 
             else 
-
                 setType(curr, 'e');
 
             SKIP_WHITE(st, l);/*set l to the next word*/
-
             i = l; /*set i to the next word*/
-
-            
-
         }
 
         return 1;
-
     }
 
     return 2;
-
 }
 
 
@@ -919,11 +848,11 @@ int add_string_data(char *st, int line, struct Data_Table *data_head, int *DC, i
 
         if(*(st + (i + 1)) != ' ' || *(st + (i + 1)) != '\t'){/*check if there is a space after the label*/
 
-            printf("Error on line %d: no seperation bitween label and operands", line);
+            printf("Error on line %d: no seperation between label and operands.\n", line);
 
             errors_here++;
 
-            ERRORS++;
+
 
             i++;
 
@@ -941,11 +870,11 @@ int add_string_data(char *st, int line, struct Data_Table *data_head, int *DC, i
 
             if(*(st + i) != '\t' && *(st + i) != ' '){/*check if there is a space after the command*/
 
-                printf("///Error in line %d: no seperation bitween .string and the string///", line);
+                printf("Error in line %d: no seperation bitween .string and the string.\n", line);
 
                 errors_here++;
 
-                ERRORS++;
+    
 
             }
 
@@ -953,11 +882,11 @@ int add_string_data(char *st, int line, struct Data_Table *data_head, int *DC, i
 
             if(*(st + i) != '"'){ /*check if string is not marked first by " */
 
-                printf("///Error in line %d: no quotation marks in the beginning of the string///", line);
+                printf("Error in line %d: no quotation marks in the beginning of the string.\n", line);
 
                 errors_here++;
 
-                ERRORS++;
+    
 
             }
 
@@ -967,11 +896,11 @@ int add_string_data(char *st, int line, struct Data_Table *data_head, int *DC, i
 
                 if(*(st + i) <= 31 || *(st + i) >= 128){ /*check if string char is printabble*/
 
-                    printf("///Error in line %d: non printable char in string///", line);
+                    printf("Error in line %d: non printable char in string.\n", line);
 
                     errors_here++;
 
-                    ERRORS++;
+        
 
                 }
 
@@ -985,11 +914,11 @@ int add_string_data(char *st, int line, struct Data_Table *data_head, int *DC, i
 
             if(*(st + i) == '\n'){ /* check if there was no " terminator to the string*/
 
-                printf("///Error in line %d: no quotation marks in the end of the string///", line);
+                printf("Error in line %d: no quotation marks in the end of the string.\n", line);
 
                 errors_here++;
 
-                ERRORS++;
+    
 
             }
 
@@ -999,21 +928,19 @@ int add_string_data(char *st, int line, struct Data_Table *data_head, int *DC, i
 
             if(*(st + i) != '\n'){
 
-                printf("///Error in line %d: to many operands in the declaration of .string///", line);
+                printf("Error in line %d: to many operands in the declaration of \".string\".\n", line);
 
                 errors_here++;
-
-                ERRORS;
 
             }
 
             if(in_list(data_head, lab) == 1){
 
-                printf("///Error in line %d: label - '%s' declared multiple times///", line, lab);
+                printf("Error in line %d: label - '%s' declared multiple times.\n", line, lab);
 
                 errors_here++;
 
-                ERRORS++;
+    
 
             }
 
@@ -1021,7 +948,7 @@ int add_string_data(char *st, int line, struct Data_Table *data_head, int *DC, i
 
             if(!new){
 
-                printf("Error: could not allocate mamory for data");
+                printf("Error: could not allocate mamory for data.\n");
 
                 exit(1);
 
@@ -1055,7 +982,7 @@ int add_string_data(char *st, int line, struct Data_Table *data_head, int *DC, i
 
             
 
-            setBinary(new, bin);
+            setBinary(new, bin, length+1); /* plus 1 for null terminator */
 
             if(errors_here > 0){
 
@@ -1097,7 +1024,7 @@ int add_string_data(char *st, int line, struct Data_Table *data_head, int *DC, i
 
     else if(i - white == 32){
 
-        printf("///Error in line %d: label longer then the maximum length of 32///", line);
+        printf("Error in line %d: label longer then the maximum length of 32.\n", line);
 
         return 0;
 
@@ -1105,7 +1032,7 @@ int add_string_data(char *st, int line, struct Data_Table *data_head, int *DC, i
 
     else{
 
-        printf("///Error in line %d: no ':' in the declaration of the label", line);
+        printf("Error in line %d: no ':' in the declaration of the label.\n", line);
 
         return 0;
 
@@ -1163,11 +1090,11 @@ int add_data_data(char *st, int line, struct Data_Table *data_head, int *DC, int
 
         if(*(st + (i + 1)) != ' ' || *(st + (i + 1)) != '\t'){
 
-            printf("Error on line %d: no seperation bitween label and operands", line);
+            printf("Error on line %d: no seperation bitween label and operands.\n", line);
 
             errors_here++;
 
-            ERRORS++;
+
 
             i++;
 
@@ -1185,11 +1112,11 @@ int add_data_data(char *st, int line, struct Data_Table *data_head, int *DC, int
 
             if(*(st + i) != '\t' && *(st + i) != ' '){
 
-                printf("///Error in line %d: no seperation bitween ':' and .data///", line);
+                printf("Error in line %d: no seperation bitween ':' and .data.\n", line);
 
                 errors_here++;
 
-                ERRORS++;
+    
 
             }
 
@@ -1215,11 +1142,11 @@ int add_data_data(char *st, int line, struct Data_Table *data_head, int *DC, int
 
                     if(*(st + i) > 57 || *(st + i) < 48){
 
-                        printf("///Error in line %d: operand is not of type int///", line);
+                        printf("Error in line %d: operand is not of type int.\n", line);
 
                         errors_here++;
 
-                        ERRORS++;
+            
 
                         break;
 
@@ -1243,11 +1170,11 @@ int add_data_data(char *st, int line, struct Data_Table *data_head, int *DC, int
 
                 if(*(st + i) != ','){
 
-                    printf("///Error in line %d: two operands not seperated by ','///", line);
+                    printf("Error in line %d: two operands not seperated by ','.\n", line);
 
                     errors_here++;
 
-                    ERRORS++;
+        
 
                 }
 
@@ -1263,11 +1190,11 @@ int add_data_data(char *st, int line, struct Data_Table *data_head, int *DC, int
 
             if(!new){
 
-                printf("Error: could not allocate mamory for data");
+                printf("Error: could not allocate mamory for data.\n");
 
                 errors_here++;
 
-                ERRORS++;
+    
 
             }
 
@@ -1295,7 +1222,7 @@ int add_data_data(char *st, int line, struct Data_Table *data_head, int *DC, int
 
 
 
-            setBinary(new, bin);
+            setBinary(new, bin, d_counter);
 
             if(errors_here > 0){
 
@@ -1337,262 +1264,152 @@ int add_data_data(char *st, int line, struct Data_Table *data_head, int *DC, int
 
     else if(i - white == 32){
 
-        printf("///Error in line %d: label longer then the maximum length of 32///", line);
-
+        printf("Error in line %d: label longer then the maximum length of 32.\n", line);
+		return 0;
     }
 
     else{
 
-        printf("///Error in line %d: no ':' in the declaration of the label", line);
-
+        printf("Error in line %d: no ':' in the declaration of the label.\n", line);
+		return 0;
     }
-
+	
 }
-
-
-
-
 
 int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_Table *data_head, int *counter){ /* Second pass function */
 
-    int i = 0, errors_here = 0;
-
+    int i = 0, errors_here = 0, t;
     int l = 0, m = 0, only_num = 1, neg = 0;
-
     int in = 0, j = 0, k = 0, z;
-
-    int num = 0;
-
-    char *temp, *ARE;
-
+    int num = 0, length;
+    char *ARE, *number, *temp = NULL;
     char binary_word[12], temp_bin[12], bin[1024][BITS];
-
     char first_binary_word[12], second_binary_word[12];
-
     struct Data_Table *temp_data = data_head;
-
+	printf("line %d is: \"%s\"\n", line, st);
     SKIP_WHITE(st, i);
-
     if(*(st + i) != '.') {
+        length = i;
+        if (is_label(st+i)) {
+		    while((*(st + length) != ':') && (length < (33 + i))){
+		        length++;
+		    }
 
-        int length = i;
+		    if(st[length] != ':'){
+		        printf("Error in line %d: label is too long, max %d.\n", line, LABEL_LENGTH);
+		        return 0;
+		    }
+		
+		    else
+		        i = length;
 
-        while(*(st + length) != ':' && length < 33 + i){
+		    if(st[i] != ' ' && st[i] != '\t' && st[i] != '\n'){
+		        printf("Error in line %d: no seperation between label and command.\n", line);
+		        return 0;
+		    }
 
-            length++;
-
-        }
-
-        if(st[length] != ':'){
-
-            printf("Error in line %d: label to long", line);
-
-            ERRORS++;
-
-            errors_here++;
-
-        }
-
-        else
-
-            i = ++length;
-
-        if(st[i] != ' ' && st[i] != '\t' && st[i] != '\n'){
-
-            printf("Error in line %d: no seperation bitween label and command", line);
-
-            ERRORS++;
-
-            errors_here++;
-
-        }
-
-        SKIP_WHITE(st, i);
-
+		    SKIP_WHITE(st, i);
+		}
     }
-
-    
-
-    if(*(st + i) != '.'){
-
-        printf("Error in line %d: no function after label", line);
-
-        ERRORS++;
-
-        errors_here++;
-
-    }
-
-    else
-
-        i++; /* skip the '.' char before the function */
-
-
 
     /*no operand commands*/
 
     if(strncmp(st + i, "stop", 4) == 0){
-
         i += 4;/*go to the char after the command */
-
         SKIP_WHITE(st, i);
-
         if(*(st + i) != '\n'){/*if there are chars that arent white after the word */
-
-            printf("///Error in line %d: operand found in an operand-less command", line);
-
+            printf("///Error in line %d: operand found in an operand-less command.\n", line);
             return 0;/*wrong syntax*/
-
         }
 
         temp = make_command_binary(st, temp);
-
+        printf("temp is: '%s'\n", temp);
         strcpy(bin[0], temp);
-
-        setBinary(curr_node, bin);
+        setBinary(curr_node, bin, 1);
 
         return 1;
-
     }
 
-
-
     else if(strncmp(st + i, "rts", 3) == 0){
-
         i += 3;/*go to the char after the command*/
-
         SKIP_WHITE(st, i);
 
         if(*(st + i) != '\n'){/*if there are chars that arent white after the word*/
-
-            printf("///Error in line %d: operand found in an operand-less command", line);
-
+            printf("///Error in line %d: operand found in an operand-less command.\n", line);
             return 0;/*wrong syntax*/
-
         }
 
         temp = make_command_binary(st, temp);
-        
+        printf("temp is: '%s'\n", temp);
         strcpy(bin[0], temp);
-
-        setBinary(curr_node, bin);
+        setBinary(curr_node, bin, 1);
 
         return 1;
-
     }
-
-
 
     /*one operand commands with 3 and 5 organization type operands*/
 
-    else if(strncmp(st + i, "not", 3) == 0 || strncmp(st + i, "clr", 3) == 0 || strncmp(st + i, "inc", 3) == 0 || strncmp(st + i, "dec", 3) == 0
-
-    || strncmp(st + i, "jmp", 3) == 0 || strncmp(st + i, "bne", 3) == 0 || strncmp(st + i, "red", 3) == 0 || strncmp(st + i, "jsr", 3) == 0){ /*3 and 5 */
-
-        
-
+    else if(strncmp(st + i, "not", 3) == 0 || strncmp(st + i, "clr", 3) == 0 || strncmp(st + i, "inc", 3) == 0 || strncmp(st + i, "dec", 3) == 0 || strncmp(st + i, "jmp", 3) == 0 || strncmp(st + i, "bne", 3) == 0 || strncmp(st + i, "red", 3) == 0 || strncmp(st + i, "jsr", 3) == 0){ /*3 and 5 */
+    
         i += 3;/*go two chars after the command*/
-
         if(*(st + i) != '\t' && *(st + i) != ' '){/*check if there is a space aftre the command*/
-
-            printf("Error in line %d: no seperation bitween comand and operands", line);
-
-            ERRORS++;
-
+            printf("Error in line %d: no seperation between comand and operands.\n", line);
             errors_here++;
-
         }
 
         SKIP_WHITE(st, i);
-
         if(*(st + i) == '\n'){
-
-            printf("Error in line %d: no no operands in a single operand function", line);
-
-            ERRORS++;
-
+            printf("Error in line %d: no operands in a single operand function.\n", line);
             return 0;
-
         }
 
         l = 0;
-
         if(*(st + i) != '@' || *(st + (i + 1)) != 'r' || *(st + (i + 2)) > '7' ||  *(st + (i + 2)) < '0'){ /*check if operand is not a legal register*/
 
             SKIP_NON_WHITE(st, l);
-
             in = 0, j = 0;
-
-            
-
             while(j < *counter && in != 1){
-
                 if(strncmp(getData(temp_data), st + i, l) == 0)
-
                     in = 1;
-
-                else{
-
+                    
+                else {
                     temp_data = getNext(temp_data);
-
                     j++;
-
                 }
-
             }
 
             if(in != 1){
-
-                ERRORS++;
-
                 errors_here++;
-
-                printf("Error in line %d: reference to an undeclared label", line);
-
+                printf("Error in line %d: reference to an undeclared label.\n", line);
             }
 
-            else{
-
+            else{ /* The label appears in the list. */
                 make_binary(getValue(temp_data), line, temp_bin);
-
                 for(k = 0; k < 10; k++)
-
                     temp_bin[k] = temp_bin[k + 2];
 
-                ARE = (getType(temp_data) == 'x') ? "01" : "10";
+                ARE = (getType(temp_data) == 'x') ? "01" : "10"; /* If the label is extern, ARE is 01, else 10. */
 
                 for(k = 10; k < BITS; k++)
-
                     temp_bin[k] = ARE[k - 10];
 
                 for (k = 0; k < BITS; k++) {
-
                     binary_word[k] = temp_bin[k];
-
                 }
-
-
-
             }
-
         }
 
-        else{
+        else { /* The wanted operand is a register. */
 
             make_binary(*(st + (i + 2)) - '0', line, temp_bin);
 
-            
-
             for(; k < 5; k++)
-
                 temp_bin[k] = temp_bin[k + 7];
 
             for(; k < 12; k++)
-
                 temp_bin[k] = '0';
 
             for (k = 0; k < BITS; k++) {
-
                 binary_word[k] = temp_bin[k];
 
             }
@@ -1600,209 +1417,132 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
         }
 
         SKIP_NON_WHITE(st, i);
-
         SKIP_WHITE(st, i);
 
         if(*(st + i) != '\n'){/*if there are chars that arent white after the word*/
-
-            printf("Error in line %d: multiple operand in a single operand function", line);/*wrong syntax*/
-
-            ERRORS++;
-
+            printf("Error in line %d: multiple operand in a single operand function.\n", line);/*wrong syntax*/
             errors_here++;
-
         }
 
         if(errors_here > 0)
-
             return 0;
-
-        strcpy(bin[0], make_command_binary(st));
-        
+            
+		temp = make_command_binary(st, temp);
+        printf("temp is: '%s'\n", temp);
+        strcpy(bin[0], temp);
         strcpy(bin[1], binary_word);
-
-        setBinary(curr_node, bin);
+        setBinary(curr_node, bin, 2);
 
         return 1;
-
     }
-
-
-
+    
     /*one operand commands with 1, 3 and 5 organization type operands*/
-
-
-
     else if(strncmp(st + i, "prn", 3) == 0){
-
+		printf("prn!\n");
         i += 3;/*go two chars after the command*/
-
         if(*(st + i) != '\t' && *(st + i) != ' '){/*check if there is a space aftre the command*/
-
-            printf("Error in line %d: no seperation bitween comand and operands", line);
-
-            ERRORS++;
-
+            printf("Error in line %d: no seperation between comand and operands.\n", line);
             errors_here++;
-
         }
 
         SKIP_WHITE(st, i);
-
         if(*(st + i) == '\n'){
-
-            printf("Error in line %d: no operands in a single operand function", line);
-
-            ERRORS++;
-
+            printf("Error in line %d: no operands in a single operand function.\n", line);
             return 0;
-
         }
 
-
-
-        
-
         while(*(st + (i + m)) != '\t' && *(st + (i + m)) != ' ' && *(st + (i + m)) != '\n'){
-
-            if(*(st + i) == '-')
-
+			printf("cur line: '%s'\n", st+i+m);
+            if(*(st + i) == '-' && m == 0)
                 neg = 1;
 
             else if(*(st + (i + m)) < '0' || *(st + (i + m)) > '9')
-
                     only_num = 0;
 
             m++;
-
         }
-
-        if(only_num == 1){
-
-            
-
-            for(z = 0; z < m; z++){
-
-                if(neg == 1);
-
-                else
-
-                    num = num * 10 + (*(st + (i + z)) - '0');
-
+		printf("reached here with only_num %d\n", only_num);
+        if(only_num == 1) {
+            number = (char *)malloc(m+1); /* +1 for null terminator. */
+            if (!number) {
+            	printf("Error: Memory allocation failed.\n");
+            	exit(1);
             }
-
+            
+            number[m] = '\0';
+			strncpy(number, st+i, m);
+			num = atoi(number);
+			free(number);
             if(neg == 1)
-
                 num = -num;
-
             make_binary(num, line, temp_bin);
-
+			printf("finished make_binary!\n");
             for(z = 0; z < 12; z++){
-
                 if(z > 9)
-
                     temp_bin[z] = '0';
-
                 else
-
                     temp_bin[z] = temp_bin[z + 2];
-
             }
 
             for (k = 0; k < BITS; k++) {
-
                 binary_word[k] = temp_bin[k];
-
             }
-
+            printf("after the for loops!\n");
         }
 
         else if(*(st + i) != '@' || *(st + (i + 1)) != 'r' || *(st + (i + 2)) > '7' ||  *(st + (i + 2)) < '0'){ /*check if operand is not a legal register*/
-
-            while(*(st + i) != ' ' && *(st + i) != '\t' && *(st + i) != '\n')
-
+			t = i;
+            while(*(st + t) != ' ' && *(st + t) != '\t' && *(st + t) != '\n') {
                 l++;
+                t++;
+            }
 
             in = 0, j = 0;
 
-            
-
             while(j < *counter && in != 1){
-
                 if(strncmp(getData(temp_data), st + i, l) == 0)
-
                     in = 1;
-
                 else{
-
                     temp_data = getNext(temp_data);
-
                     j++;
-
                 }
-
             }
 
             if(in != 1){
-
-                ERRORS++;
-
                 errors_here++;
-
-                printf("Error in line %d: reference to an undeclared label", line);
-
+                printf("Error in line %d: reference to an undeclared label.\n", line);
             }
 
             else{
-
                 make_binary(getValue(temp_data), line, temp_bin);
 
                 for(k = 0; k < 10; k++)
-
                     temp_bin[k] = temp_bin[k + 2];
 
                 ARE = (getType(temp_data) == 'x') ? "01" : "10";
 
                 for(k = 10; k < 12; k++)
-
                     temp_bin[k] = ARE[k - 10];
 
-                
-
                 for (k = 0; k < BITS; k++) {
-
                     binary_word[k] = temp_bin[k];
-
                 }
-
             }
-
         }
 
         else{
-
-            char temp_bin[12];
-
             make_binary(*(st + (i + 2)) - '0', line, temp_bin);
-
             k = 0;
-
+            
             for(; k < 5; k++)
-
                 temp_bin[k] = temp_bin[k + 7];
-
+                
             for(; k < 12; k++)
-
                 temp_bin[k] = '0';
 
-            
-
             for (k = 0; k < BITS; k++) {
-
                 binary_word[k] = temp_bin[k];
-
             }
-
         }
 
         SKIP_NON_WHITE(st, i);
@@ -1811,9 +1551,9 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
         if(*(st + i) != '\n'){/*if there are chars that arent white after the word*/
 
-            printf("Error in line %d: multiple operand in a single operand function", line);/*wrong syntax*/
+            printf("Error in line %d: multiple operand in a single operand function.\n", line);/*wrong syntax*/
 
-            ERRORS++;
+
 
             errors_here++;
 
@@ -1822,13 +1562,15 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
         if(errors_here > 0)
 
             return 0;
-
-
-        strcpy(bin[0], make_command_binary(st));
-        
+		printf("before make command binary!\n");
+		temp = make_command_binary(st, bin[0]);
+        printf("temp is: '%s'\n", temp);
+        strcpy(bin[0], temp);
+		printf("after make command binary! bin[0] is: '%s' \n", bin[0]);
         strcpy(bin[1], binary_word);
-
-        setBinary(curr_node, bin);
+        printf("before setBinary! bin[1] is: '%s'\n", bin[1]);
+        setBinary(curr_node, bin, 2);
+        printf("after setBinary!\n");
 
         return 1;
 
@@ -1848,9 +1590,9 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
         if(*(st + i) != '\t' && *(st + i) != ' '){/*check if there is a space aftre the command*/
 
-            printf("Error in line %d: no seperation bitween command and operands", line);
+            printf("Error in line %d: no seperation between command and operands.\n", line);
 
-            ERRORS++;
+
 
             errors_here++;
 
@@ -1862,9 +1604,9 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
         if(*(st + i) == '\n'){
 
-            printf("Error in line %d: no operands in a two operand function", line);
+            printf("Error in line %d: no operands in a two operand function.\n", line);
 
-            ERRORS++;
+
 
             return 0;
 
@@ -1898,11 +1640,11 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
         if(in != 1){
 
-            ERRORS++;
+
 
             errors_here++;
 
-            printf("Error in line %d: reference to an undeclared label", line);
+            printf("Error in line %d: reference to an undeclared label.\n", line);
 
         }
 
@@ -1938,9 +1680,9 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
         if(*(st + i) == '\n'){
 
-            printf("Error in line %d: only one operand in a two operand function", line);
+            printf("Error in line %d: only one operand in a two operand function.\n", line);
 
-            ERRORS++;
+
 
             return 0;
 
@@ -1978,11 +1720,11 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
             if(in != 1){
 
-                ERRORS++;
+    
 
                 errors_here++;
 
-                printf("Error in line %d: reference to an undeclared label", line);
+                printf("Error in line %d: reference to an undeclared label.\n", line);
 
             }
 
@@ -2044,9 +1786,9 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
         if(*(st + i) != '\n'){/*if there are chars that arent white after the word*/
 
-            printf("Error in line %d: more then two operands in a two operand function", line);/*wrong syntax*/
+            printf("Error in line %d: more then two operands in a two operand function.\n", line);/*wrong syntax*/
 
-            ERRORS++;
+
 
             errors_here++;
 
@@ -2055,14 +1797,13 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
         if(errors_here > 0)
 
             return 0;
-
-        strcpy(bin[0], make_command_binary(st));
-        
+		
+		temp = make_command_binary(st, temp);
+        printf("temp is: '%s'\n", temp);
+        strcpy(bin[0], temp);
         strcpy(bin[1], first_binary_word);
-
         strcpy(bin[2], second_binary_word);
-
-        setBinary(curr_node, bin);
+        setBinary(curr_node, bin, 3);
 
         return 1;
 
@@ -2080,9 +1821,9 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
         if(*(st + i) != '\t' && *(st + i) != ' '){/*check if there is a space aftre the command*/
 
-            printf("Error in line %d: no seperation bitween command and operands", line);
+            printf("Error in line %d: no seperation bitween command and operands.\n", line);
 
-            ERRORS++;
+
 
             errors_here++;
 
@@ -2094,9 +1835,9 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
         if(*(st + i) == '\n'){
 
-            printf("Error in line %d: no operands in a two operand function", line);
+            printf("Error in line %d: no operands in a two operand function.\n", line);
 
-            ERRORS++;
+
 
             return 0;
 
@@ -2192,11 +1933,11 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
             if(in != 1){
 
-                ERRORS++;
+    
 
                 errors_here++;
 
-                printf("Error in line %d: reference to an undeclared label", line);
+                printf("Error in line %d: reference to an undeclared label.\n", line);
 
             }
 
@@ -2262,9 +2003,9 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
         if(*(st + i) == '\n'){
 
-            printf("Error in line %d: only one operand in a two operand function", line);
+            printf("Error in line %d: only one operand in a two operand function.\n", line);
 
-            ERRORS++;
+
 
             return 0;
 
@@ -2302,11 +2043,11 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
             if(in != 1){
 
-                ERRORS++;
+    
 
                 errors_here++;
 
-                printf("Error in line %d: reference to an undeclared label", line);
+                printf("Error in line %d: reference to an undeclared label.\n", line);
 
             }
 
@@ -2376,9 +2117,9 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
         if(*(st + i) != '\n'){/*if there are chars that arent white after the word*/
 
-            printf("Error in line %d: more then two operands in a two operand function", line);/*wrong syntax*/
+            printf("Error in line %d: more then two operands in a two operand function.\n", line);/*wrong syntax*/
 
-            ERRORS++;
+
 
             errors_here++;
 
@@ -2388,13 +2129,12 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
             return 0;
         
-        strcpy(bin[0], make_command_binary(st));
-        
+        temp = make_command_binary(st, temp);
+        printf("temp is: '%s'\n", temp);
+        strcpy(bin[0], temp);
         strcpy(bin[1], first_binary_word);
-
         strcpy(bin[2], second_binary_word);
-
-        setBinary(curr_node, bin);
+        setBinary(curr_node, bin,3);
 
         return 1;
 
@@ -2412,9 +2152,9 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
         if(*(st + i) != '\t' && *(st + i) != ' '){ /*check if there is a space aftre the command*/
 
-            printf("Error in line %d: no seperation bitween command and operands", line);
+            printf("Error in line %d: no seperation bitween command and operands.\n", line);
 
-            ERRORS++;
+
 
             errors_here++;
 
@@ -2426,9 +2166,9 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
         if(*(st + i) == '\n'){
 
-            printf("Error in line %d: no operands in a two operand function", line);
+            printf("Error in line %d: no operands in a two operand function.\n", line);
 
-            ERRORS++;
+
 
             return 0;
 
@@ -2526,11 +2266,11 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
             if(in != 1){
 
-                ERRORS++;
+    
 
                 errors_here++;
 
-                printf("Error in line %d: reference to an undeclared label", line);
+                printf("Error in line %d: reference to an undeclared label.\n", line);
 
             }
 
@@ -2600,9 +2340,9 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
         if(*(st + i) == '\n'){
 
-            printf("Error in line %d: only one operand in a two operand function", line);
+            printf("Error in line %d: only one operand in a two operand function.\n", line);
 
-            ERRORS++;
+
 
             return 0;
 
@@ -2698,11 +2438,11 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
             if(in != 1){
 
-                ERRORS++;
+    
 
                 errors_here++;
 
-                printf("Error in line %d: reference to an undeclared label", line);
+                printf("Error in line %d: reference to an undeclared label.\n", line);
 
             }
 
@@ -2772,9 +2512,9 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
         if(*(st + i) != '\n'){/*if there are chars that arent white after the word*/
 
-            printf("Error in line %d: more then two operands in a two operand function", line);/*wrong syntax*/
+            printf("Error in line %d: more then two operands in a two operand function.\n", line);/*wrong syntax*/
 
-            ERRORS++;
+
 
             errors_here++;
 
@@ -2784,20 +2524,16 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
             return 0;
 
-        strcpy(bin[0], make_command_binary(st));
-        
+		temp = make_command_binary(st, temp);
+        printf("temp is: '%s'\n", temp);
+        strcpy(bin[0], temp);
         strcpy(bin[1], first_binary_word);
-
         strcpy(bin[2], second_binary_word);
-
-        setBinary(curr_node, bin);
+        setBinary(curr_node, bin, 3);
 
         return 1;
 
     }
 
-
-
     return 2;  
-
 }

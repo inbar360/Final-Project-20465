@@ -20,7 +20,7 @@ static boolean create_ent(char *name, struct Data_Table *head) {
 
     /* By the instructions, the .ent file should not exist if the list is empty.
        Before opening the file, check if the list is empty, if it is, return TRUE without opening the file. */
-    if (curr = NULL) {
+    if (curr == NULL) {
         free(new_name);
         return TRUE;
     }
@@ -52,7 +52,7 @@ static boolean create_ext(char *name, struct Data_Table *head) {
 
     /* By the instructions, the .ext file should not exist if the list is empty.
        Before opening the file, check if the list is empty, if it is, return TRUE without opening the file. */
-    if (curr = NULL) {
+    if (curr == NULL) {
         free(new_name);
         return TRUE;
     }
@@ -79,7 +79,7 @@ static boolean create_ext(char *name, struct Data_Table *head) {
 
 static boolean create_ob(char *name, int ic, int dc, struct Data_Table *head) {
     FILE *ob;
-    char *new_name = strcat_name(name, ".ob"), **data; /* Using strcat_name function from "utils.c" to create the new name. */
+    char *new_name = strcat_name(name, ".ob"), (*data)[BITS]; /* Using strcat_name function from "utils.c" to create the new name. */
     int i;
     struct Data_Table *curr = head;
 
