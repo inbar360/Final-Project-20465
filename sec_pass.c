@@ -7,7 +7,7 @@ void make_code_binary(FILE *from, struct Data_Table *data_head) {
     for (line = 1; fgets(st, MAX_LINE, from) != NULL; line++) {
         curr_node = data_head;
         mark_label_entry(st, line);
-        while(curr_node && (curr_node) != 'c' && getType(curr_node) != 'C'){
+        while(curr_node && (curr_node) != 'c' && getType(curr_node) != 'E'){
             curr_node = getNext(curr_node);
         }
         int res = make_command(st, curr_node, line);
