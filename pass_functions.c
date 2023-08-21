@@ -394,13 +394,13 @@ int add_extern_data(char *st, int line) {
                 legal = 0;
             }
 
-            for(m = i; m < l; m++) { /*  */
+            for(m = i; m < l; m++) { /* start at the begiening of the current label and run until you reached its end */
                 if(!isalnum(*(st + m))) {
                     printf("Error in line %d: label name is not legal", line);
                     ERRORS++;
                     errors_here++;
                     legal = 0;
-                    break;
+                    break;/* one error here is enough */
                 }
             }
             
@@ -418,15 +418,15 @@ int add_extern_data(char *st, int line) {
 
             i = l;
             SKIP_WHITE(st, i);
-            if (errors_here > 0) {
+            if (errors_here > 0) {/* if there are errors dont make changes in the non automatic memory */
                 free(new);
                 free_data_table(&data);
                 return 0;
             }
 
-            setType(new, 'x');
-            setLength(new, 1);
-            setValue(new, 100+ DC_here++);
+            setType(new, 'x');/* x stand for extern, needed for the function mark_label_entry and make_command */
+            setLength(new, 1);/* its length is only 1 because its value is not in this file and we can only asign a type and base*/
+            setValue(new, 100 + DC_here++);/* add one to DC_here*/
             if (data_count == 0) 
                 data = new;
             else {
@@ -482,7 +482,7 @@ int mark_label_entry(char *st, int line) { /* Second pass function */
             errors_here++;
         }
         else
-            SKIP_WHITE(st, i);
+            SKIP_WHITE(st, i); /*if there is a space after the command skip it*/
         while(st[i] != '\n') {
             l = i;
             SKIP_NON_WHITE(st, l);
@@ -524,6 +524,9 @@ int mark_label_entry(char *st, int line) { /* Second pass function */
             }
             else 
                 setType(curr, 'e');
+            SKIP_WHITE(st, l);/*set l to the next word*/
+            i = l; /*set i to the next word*/
+            
         }
         return 1;
     }
@@ -544,16 +547,16 @@ int add_string_data(char *st, int line){/*adds labels of .string type*/
     i = 0;
     SKIP_WHITE(st, i);
     white = i;
-    while(i - white < 32 && *(st + i) != '\0' && *(st + i) != ':' && *(st + i) != ' ' && *(st + i) != '\t' && *(st + i) != '\n'){
+    while(i - white < 32 && *(st + i) != '\0' && *(st + i) != ':' && *(st + i) != ' ' && *(st + i) != '\t' && *(st + i) != '\n'){/*next two lines check if string is a labal*/
         if((*(st + i) > 57 && *(st + i) < 65) || *(st + i) < 48 || (*(st + i) > 90 && *(st + i) < 97) || *(st + i) > 122)
             return 1; /*means its not a label*/
         lab[i - white] = *(st + i);
         i++;
     }
-    if(*(st + i) == ':'){
+    if(*(st + i) == ':'){ /*check if the the label is legaly terminated with ':'*/
         
         char* string = (char*) malloc(sizeof(char));
-        if(*(st + (i + 1)) != ' ' || *(st + (i + 1)) != '\t'){
+        if(*(st + (i + 1)) != ' ' || *(st + (i + 1)) != '\t'){/*check if there is a space after the label*/
             printf("Error: no seperation bitween label and operands");
             errors_here++;
             ERRORS++;
@@ -561,32 +564,32 @@ int add_string_data(char *st, int line){/*adds labels of .string type*/
         }
         else
             i += 2;
-        SKIP_WHITE(st, i);
-        if(strncmp(st+i, ".string", 7) == 0){
+        SKIP_WHITE(st, i); /*go to the first word after the label*/
+        if(strncmp(st+i, ".string", 7) == 0){/* check if command is string*/
             i += 7;
-            if(*(st + i) != '\t' && *(st + i) != ' '){
+            if(*(st + i) != '\t' && *(st + i) != ' '){/*check if there is a space after the command*/
                 printf("///Error in line %d: no seperation bitween .string and the string///", line);
                 errors_here++;
                 ERRORS++;
             }
             SKIP_WHITE(st, i);
-            if(*(st + i) != '"'){
+            if(*(st + i) != '"'){ /*check if string is not marked first by " */
                 printf("///Error in line %d: no quotation marks in the beginning of the string///", line);
                 errors_here++;
                 ERRORS++;
             }
             start = ++i;
-            while(*(st + i) != '"' && *(st + i) != '\n'){
-                if(*(st + i) <= 31 || *(st + i) >= 128){
+            while(*(st + i) != '"' && *(st + i) != '\n'){//until you reach the end of string*/
+                if(*(st + i) <= 31 || *(st + i) >= 128){ /*check if string char is printabble*/
                     printf("///Error in line %d: non printable char in string///", line);
                     errors_here++;
                     ERRORS++;
                 }
-                *(string + length) = *(st + i);
+                *(string + length) = *(st + i);//if add char to the char array*/
                 length++;
                 i++;
             }
-            if(*(st + i) == '\n'){
+            if(*(st + i) == '\n'){/* check if there was no " terminator to the string*/
                 printf("///Error in line %d: no quotation marks in the end of the string///", line);
                 errors_here++;
                 ERRORS++;
@@ -619,6 +622,8 @@ int add_string_data(char *st, int line){/*adds labels of .string type*/
                      bin[k][z] = temp[z];
                 }
             }
+            for(int z = 0; z < 12; z++)
+                bin[k][z] = '0'; /*add null terminator*/
             
             setBinary(new, bin);
             if(errors_here > 0){
@@ -668,7 +673,7 @@ int add_data_data(char *st, int line){//adds labels of .data type
     int white = i;
     while(i - white < 32 && *(st + i) != '\0' && *(st + i) != ':' && *(st + i) != ' ' && *(st + i) != '\t' && *(st + i) != '\n'){
         if((*(st + i) > 57 && *(st + i) < 65) || *(st + i) < 48 || (*(st + i) > 90 && *(st + i) < 97) || *(st + i) > 122)
-            return 1;         //printf("///Error in line %d: label name can only contain numbers and English letters (lower and upper case)///", line);
+            return 1;   
         lab[i - white] = *(st + i);
         i++;
     }
