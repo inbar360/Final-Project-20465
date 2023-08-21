@@ -2,7 +2,7 @@
 
 boolean make_code_binary(FILE *from, struct Data_Table *data_head, int *IC, int *DC, int *counter) {
     struct Data_Table *curr_node;
-    int i = 0, line;
+    int i = 0, line, errors;
     char st[MAX_LINE];
     for (line = 1; fgets(st, MAX_LINE, from) != NULL; line++) {
         curr_node = data_head;
@@ -14,8 +14,11 @@ boolean make_code_binary(FILE *from, struct Data_Table *data_head, int *IC, int 
         if(res == 1) {
             setType(curr_node, 'f'); //stands for finished with this line
         }
-        if(res == FALSE)
-          return FALSE;
+        if(res == 0)
+          errors = 1;
     }
+
+    if (errors) return FALSE;
+    return TRUE;
 }
 
