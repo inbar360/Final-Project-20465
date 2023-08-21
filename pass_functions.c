@@ -3,7 +3,7 @@
 struct Data_Table *data_head;
 int IC = 0, DC = 0, counter = 0, ERRORS = 0;
 
-boolean is_label(char st[]) {
+int is_label(char st[]) {
     int i = 0;
     while(i < 32 && !END_CHAR(st, i) && *(st + i) != ':' && !IS_WHITE(st, i)){
         if(!isalnum(*(st + i))) /* If the char is not a valid label-name char, return FALSE. */
@@ -14,7 +14,7 @@ boolean is_label(char st[]) {
     return FALSE;
 }
 
-boolean in_list(struct Data_Table *dt, char str[]) {
+int in_list(struct Data_Table *dt, char str[]) {
     struct Data_Table *dt1= dt;
     while(dt1 != NULL) { /* While dt1 is not NULL */
         if(strcmp(str, getData(dt1)) == 0) { /* If the string appears in the list, return TRUE. */
