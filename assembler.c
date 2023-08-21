@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     /* processing the files, starting with 1 because the first argument is not a file name.*/
     for (i = 1; i < argc; i++) {
     	printf("%s\n", argv[i]);
-        printf("%d\n", process_file(argv[i]));
+        printf("%s\n", process_file(argv[i]) ? "File process finished succesfully!\n" : "File process failed.\n");
     }
 
     return 0;
@@ -29,9 +29,9 @@ static boolean process_file(char *file_name) {
     struct Macro_Table *head = NULL;
     struct Data_Table *data_head = NULL;
     char *new_name = strcat_name(file_name, ".am"); /* Using strcat_name function from "utils.c" to create the new name. */
-    boolean prepro, secpass;
+    boolean prepro, secpass, firpass = TRUE;
     char st[MAX_LINE];
-    int ic = 0, dc = 0, line;
+    int IC = 0, DC = 0, line, counter = 0;
 
     if (!new_name) {
         printf("Error: Memory allocation failed.\n");
@@ -73,17 +73,45 @@ static boolean process_file(char *file_name) {
     }
     
     for (line = 1; fgets(st, MAX_LINE, am) != NULL; line++) {
-        firstpass_line(st, line, data_head);
+        if(!firstpass_line(st, line, data_head, &IC, &DC, &counter))
+            firpass = FALSE;
     }
 
     rewind(am); /* Before the second pass, set the file position to the beginning of the file. */
-    secpass = sec_pass(am, new_name, data_head, &ic);
-    if (!secpass) {
+
+    secpass = sec_pass(am, new_name, data_head, &IC);
+    if (!firpass) {
+        printf("First pass of file \"%s\" did not work.\n", new_name);
+        free(new_name);
+        free_table(&head);
+        free_data_table(&data_head);
+        free(name);
+        fclose(file);
+        fclose(am);
+        return FALSE;
+    }
+
+    else if (!secpass) {
         printf("Second pass of file \"%s\" did not work.\n", new_name);
+        free(new_name);
+        free_table(&head);
+        free_data_table(&data_head);
+        free(name);
+        fclose(file);
+        fclose(am);
+        return FALSE;
     }
 
     else {
-        create_files(file_name, ic, dc, data_head);
+        if(!create_files(file_name, IC, DC, data_head)) {
+            free(new_name);
+            free_table(&head);
+            free_data_table(&data_head);
+            free(name);
+            fclose(file);
+            fclose(am);
+            return FALSE;
+        }
     }
 
     free(new_name);

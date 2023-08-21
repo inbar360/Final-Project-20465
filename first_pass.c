@@ -18,7 +18,7 @@ boolean firstpass_line(char st[], int line, struct Data_Table *head, int *IC, in
       
     }
 
-    if(res == 0)
-        return FALSE;
-    return TRUE;
+    if(res == 3)
+        return TRUE;
+    return FALSE;
 }
