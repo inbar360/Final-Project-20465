@@ -92,7 +92,7 @@ void setData(struct Data_Table *table, char data[]) {
 
 
 
-void setBinary(struct Data_Table *table, char binary[1024][BITS], int len) {
+void setBinary(struct Data_Table *table, char binary[1024][BITS+1], int len) {
 
     int i;
     printf("bin[0] = %s, bin[1] = %s\n", binary[0], binary[1]);

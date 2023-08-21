@@ -30,7 +30,7 @@ char *organization_type(char *op);
 
 
 
-char *make_command_binary(char *st, char binary[12]);
+char *make_command_binary(char *st, char binary[BITS+1]);
 
 
 

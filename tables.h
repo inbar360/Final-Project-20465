@@ -52,7 +52,7 @@ void setData(struct Data_Table *table, char data[]);
 
 /* This function sets the array of strings of the current table to the given array. */
 
-void setBinary(struct Data_Table *table, char binary[1024][BITS], int len);
+void setBinary(struct Data_Table *table, char binary[1024][BITS+1], int len);
 
 
 

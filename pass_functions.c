@@ -195,7 +195,7 @@ char *organization_type(char *op) {
 
 
 
-char *make_command_binary(char *st, char binary[12]) {
+char *make_command_binary(char *st, char binary[BITS+1]) {
 
     char *command , *fir_op, *sec_op, ARE[2] = "00";
 
@@ -806,7 +806,7 @@ int add_string_data(char *st, int line, struct Data_Table *data_head, int *DC, i
 
     char lab[LABEL_LENGTH], temp[12];
 
-    char bin[MAX_MEMORY][BITS];
+    char bin[MAX_MEMORY][BITS+1];
 
     int i, white, k, z;
 
@@ -819,9 +819,11 @@ int add_string_data(char *st, int line, struct Data_Table *data_head, int *DC, i
         curr = getNext(curr);
 
     }
-
-
-
+    
+    for (i = 0; i < MAX_MEMORY; i++) {
+		bin[i][BITS] = '\0';
+	}
+	
     i = 0;
 
     SKIP_WHITE(st, i);
@@ -1058,7 +1060,7 @@ int add_data_data(char *st, int line, struct Data_Table *data_head, int *DC, int
 
     char lab[LABEL_LENGTH], temp[BITS];
 
-    char bin[MAX_MEMORY][BITS];
+    char bin[MAX_MEMORY][BITS+1];
 
     for(i = 0; i < *counter; i++){ /* going to the next empty node */
 
@@ -1066,7 +1068,9 @@ int add_data_data(char *st, int line, struct Data_Table *data_head, int *DC, int
 
     }
 
-
+	for (i = 0; i < MAX_MEMORY; i++) {
+		bin[i][BITS] = '\0';
+	}
 
     i = 0;
 
@@ -1283,10 +1287,16 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
     int in = 0, j = 0, k = 0, z;
     int num = 0, length;
     char *ARE, *number, *temp = NULL;
-    char binary_word[12], temp_bin[12], bin[1024][BITS];
+    char binary_word[12], temp_bin[12], bin[1024][BITS+1];
     char first_binary_word[12], second_binary_word[12];
     struct Data_Table *temp_data = data_head;
 	printf("line %d is: \"%s\"\n", line, st);
+	
+	for (i = 0; i < MAX_MEMORY; i++) {
+		bin[i][BITS] = '\0';
+	}
+	i = 0;
+	
     SKIP_WHITE(st, i);
     if(*(st + i) != '.') {
         length = i;
