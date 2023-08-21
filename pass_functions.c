@@ -1363,9 +1363,9 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
     int num = 0;
 
-    char **bin, *temp, *ARE;
+    char *temp, *ARE;
 
-    char binary_word[12], temp_bin[12];
+    char binary_word[12], temp_bin[12], bin[1024][BITS];
 
     char first_binary_word[12], second_binary_word[12];
 
@@ -1447,7 +1447,7 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
         temp = make_command_binary(st, temp);
 
-        bin = &temp;
+        strcpy(bin[0], temp);
 
         setBinary(curr_node, bin);
 
@@ -1472,8 +1472,8 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
         }
 
         temp = make_command_binary(st, temp);
-
-        bin = &temp;
+        
+        strcpy(bin[0], temp);
 
         setBinary(curr_node, bin);
 
@@ -1617,17 +1617,9 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
             return 0;
 
-        bin = (char **)malloc(2 * sizeof(char *));
-
-        if (!bin) {
-
-            exit(1);
-
-        }
-
-        *(bin) = make_command_binary(st, *(bin));
-
-        *(bin+1) = binary_word;
+        strcpy(bin[0], make_command_binary(st));
+        
+        strcpy(bin[1], binary_word);
 
         setBinary(curr_node, bin);
 
@@ -1832,18 +1824,9 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
             return 0;
 
 
-
-        bin = (char **)malloc(2 * sizeof(char *));
-
-        if (!bin) {
-
-            exit(1);
-
-        }
-
-        *(bin) = make_command_binary(st, *(bin));
-
-        *(bin+1) = binary_word;
+        strcpy(bin[0], make_command_binary(st));
+        
+        strcpy(bin[1], binary_word);
 
         setBinary(curr_node, bin);
 
@@ -2073,21 +2056,11 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
             return 0;
 
+        strcpy(bin[0], make_command_binary(st));
         
+        strcpy(bin[1], first_binary_word);
 
-        bin = (char **)malloc(3 * sizeof(char *));
-
-        if (!bin) {
-
-            exit(1);
-
-        }
-
-        *(bin) = make_command_binary(st, *(bin));
-
-        *(bin+1) = first_binary_word;
-
-        *(bin+2) = second_binary_word;
+        strcpy(bin[2], second_binary_word);
 
         setBinary(curr_node, bin);
 
@@ -2414,22 +2387,12 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
         if(errors_here > 0)
 
             return 0;
+        
+        strcpy(bin[0], make_command_binary(st));
+        
+        strcpy(bin[1], first_binary_word);
 
-
-
-        bin = (char **)malloc(3 * sizeof(char *));
-
-        if (!bin) {
-
-            exit(1);
-
-        }
-
-        *(bin) = make_command_binary(st, *(bin));
-
-        *(bin+1) = first_binary_word;
-
-        *(bin+2) = second_binary_word;
+        strcpy(bin[2], second_binary_word);
 
         setBinary(curr_node, bin);
 
@@ -2821,21 +2784,11 @@ int make_command(char *st, struct Data_Table *curr_node, int line, struct Data_T
 
             return 0;
 
+        strcpy(bin[0], make_command_binary(st));
+        
+        strcpy(bin[1], first_binary_word);
 
-
-        bin = (char **)malloc(3 * sizeof(char *));
-
-        if (!bin) {
-
-            exit(1);
-
-        }
-
-        *(bin) = make_command_binary(st, (*bin));
-
-        *(bin+1) = first_binary_word;
-
-        *(bin+2) = second_binary_word;
+        strcpy(bin[2], second_binary_word);
 
         setBinary(curr_node, bin);
 
