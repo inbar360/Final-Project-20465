@@ -254,7 +254,7 @@ int make_memory_of_command_label(char *st, int line, struct Data_Table *data_hea
         }
 
         setData(new, lab); /* set new's data.*/
-        setType(new, 'C'); /* Set to a type that's different than a command with label. */
+        setType(new, 'c'); /* type code  */
         setLength(new, length); /* Set new's length. */
 
         if(*counter == 0) { /* If the list is empty, set new's value to 100, and set data_head to new. */
@@ -320,7 +320,7 @@ int make_memory_of_command(char *st, int line, struct Data_Table *data_head, int
     if(errors_here > 0) { /* Return 0 if ran into any errors. */
         return 0;
     }
-    setType(new, 'c');
+    setType(new, 'c');/* type code */
     setLength(new, length);
     
     if(*counter == 0) { /* If the list is empty set value to 100 (initial value), and data_head to new. */
@@ -521,6 +521,8 @@ int mark_label_entry(char *st, int line, struct Data_Table *data_head, int *coun
                 ERRORS++;
                 errors_here++;
             }
+            else if(getType(curr) == "c")
+                setType(curr, 'E');
             else 
                 setType(curr, 'e');
             SKIP_WHITE(st, l);/*set l to the next word*/
