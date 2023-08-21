@@ -79,7 +79,7 @@ static boolean process_file(char *file_name) {
 
     rewind(am); /* Before the second pass, set the file position to the beginning of the file. */
 
-    secpass = sec_pass(am, new_name, data_head, &IC);
+    secpass = make_code_binary(am, data_head, &IC, &DC, &counter);
     if (!firpass) {
         printf("First pass of file \"%s\" did not work.\n", new_name);
         free(new_name);
