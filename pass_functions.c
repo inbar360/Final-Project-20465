@@ -81,8 +81,6 @@ char *opcode_in_binary(char *op) {
   	return NULL;
 }
 
-
-
 void make_binary(int n, int line, char *bits) {
     int abs_n, i, j;
     char bin[BITS];
@@ -329,7 +327,7 @@ int make_memory_of_command_label(char *st, int line, struct Data_Table *data_hea
             i += 3; /* Add 3 to i. */
 
         if(*(st + i) != ' ' || *(st + i) != '\t' || *(st + i) != '\n'){
-            printf("Error on line %d: no seperation bitween command and operands", line);
+            printf("Error on line %d: no seperation between command and operands", line);
             errors_here++; /* Add 1 to errors_here and errors. */
             ERRORS++;
         }
@@ -383,6 +381,11 @@ int make_memory_of_command_label(char *st, int line, struct Data_Table *data_hea
         (*counter)++; /* Add 1 to counter, indicating that we have at least one data_table variable in the list. */
         return 3; /* done succesfully */
     }
+
+    else {
+        printf("Error on line %d: no seperation between command and operands", line);
+        return 0;
+    }
 }
 
 
@@ -403,82 +406,48 @@ int make_memory_of_command(char *st, int line, struct Data_Table *data_head, int
 
     length++; /* Add 1 to length. */
     if(strcmp(opcode_in_binary(st + i), "1111") == 0)
-
         i += 5; /* Add 5 to i. */
 
     else
-
         i += 4; /* Add 4 to i. */
 
     if(*(st + i) != ' ' || *(st + i) != '\t' || *(st + i) != '\n') { /* If there's no seperation, add to erros_here + errors. */
-
         printf("Error in line %d: no seperation bitween label and operands", line);
-
         errors_here++;
-
         ERRORS++;
-
     }
 
     SKIP_WHITE(st, i); /* Skip white chars */
-
     if(*(st + i) != '\n') {
-
         length++; /* Add 1 to length. */
-
         SKIP_NON_WHITE(st, i); /* Skip first operand. */
-
         SKIP_WHITE(st, i); /* Skip white chars. */
 
         if(*(st + i) != '\n') {
-
             length++; /* Add 1 to length. */
-
             SKIP_NON_WHITE(st, i); /* Skip operand. */
-
             SKIP_WHITE(st, i); /* Skip white chars. */
 
             if(*(st + i) != '\n') {
-
                 printf("Error: too many operands"); /* Print error, and add to errors_here + errors. */
-
                 errors_here++;
-
                 ERRORS++;
-
             }
-
         }
-
     }
-
-    
 
     new = create_table();
-
     if(!new) { /* If ran into memory issues, print and add to errors variables. */
-
         printf("Error: could not allocate mamory for data");
-
         errors_here++;
-
         ERRORS++;
-
     }
-
-
-
     if(errors_here > 0) { /* Return 0 if ran into any errors. */
-
         return 0;
-
     }
 
     setType(new, 'c');/* type code */
-
     setLength(new, length);
-
-    
 
     if(*counter == 0) { /* If the list is empty set value to 100 (initial value), and data_head to new. */
 

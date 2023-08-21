@@ -1,4 +1,4 @@
-#include "second_pass.h"
+#include "sec_pass.h"
 
 boolean make_code_binary(FILE *from, struct Data_Table *data_head, int *IC, int *DC, int *counter) {
     struct Data_Table *curr_node;
@@ -12,10 +12,10 @@ boolean make_code_binary(FILE *from, struct Data_Table *data_head, int *IC, int 
         }
         int res = make_command(st, curr_node, line, data_head, counter);
         if(res == 1 &&  getType(curr_node) == 'E') {
-            setType(curr_node, 'F'); //stands for finished with this line and the command is marked entry
+            setType(curr_node, 'F'); /*stands for finished with this line and the command is marked entry*/
         }
         else if(res == 1)
-            setType(curr_node, 'f'); //stands for finished with this line
+            setType(curr_node, 'f'); /*stands for finished with this line*/
         if(res == 0)
           errors = 1;
     }
