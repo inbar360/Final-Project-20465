@@ -8,10 +8,13 @@ void make_code_binary(st){
       curr_node = &get_next(*curr_node);
     }
     int res = make_command(st, curr_node, line);
-    if(res == 1)
+    if(res == 1){
         curr_node->type = 'f';//stands for finished with this line
+        return 1;
+    }
+    if(res == 0)
+      return 0;
     NEXT_LINE(st, i);
   }
 }
 
-//add function that creates .ext and .ent files
