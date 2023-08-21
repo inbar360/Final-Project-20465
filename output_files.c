@@ -97,11 +97,22 @@ static boolean create_ob(char *name, int ic, int dc, struct Data_Table *head) {
     while (curr) { /* While curr is not NULL. */
         data = getBinary(curr); /* Get the binary into data. */
         for (i = 0; i < getLength(curr); i++) { /* Go over the data. */
-            base64print(ob, data[i]); /* Print the data in base64. */
+            if (getType(curr) == 'f' || getType(curr) == 'F')
+                base64print(ob, data[i]); /* Print the data in base64. */
         }
         curr = getNext(curr); /* Set curr to the next in the list. */
     }
 
+    curr = head;
+    while (curr) {
+        data = getBinary(curr);
+        for (i = 0; i < getLength(curr); i++) { /* Go over the data. */
+            if (getType(curr) == 's' || getType(curr) == 'e' || getType(curr) == 'd' || getType(curr) == 'x')
+                base64print(ob, data[i]); /* Print the data in base64. */
+        }
+        curr = getNext(curr); /* Set curr to the next in the list. */
+    }
+    
     free(new_name); 
     fclose(ob);
     return TRUE; /* Free new name, close the file, and return TRUE. */
