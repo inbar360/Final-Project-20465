@@ -1,4 +1,4 @@
-#include "second_pass.h"
+l#include "second_pass.h"
 
 void make_code_binary(FILE *from, struct Data_Table *data_head) {
     struct Data_Table *curr_node;
