@@ -14,7 +14,7 @@ struct Data_Table{
 
     char data[LABEL_LENGTH];
 
-    char binary[MAX_MEMORY][BITS];
+    char binary[MAX_MEMORY][BITS+1];
 
     struct Data_Table *next;
 
@@ -98,9 +98,12 @@ void setBinary(struct Data_Table *table, char binary[1024][BITS+1], int len) {
     printf("bin[0] = %s, bin[1] = %s\n", binary[0], binary[1]);
 
     for (i = 0; i < len; i++) {
-    	printf("binary[i]: '%s', %d\n", binary[i], strlen(binary[i]));
+    	printf("binary[i]: '%s', %d, %d\n", binary[i], strlen(binary[i]), !table);
+    	table->binary[i][BITS] = '\0';
+    	
 
         strcpy(table->binary[i], binary[i]);
+        printf("after: '%s'\n", table->binary[i]);
 
     }
 
@@ -150,7 +153,7 @@ char *getData(struct Data_Table *table) {
 
 
 
-char (*getBinary(struct Data_Table *table))[BITS] {
+char (*getBinary(struct Data_Table *table))[BITS+1] {
 
     return table->binary;
 

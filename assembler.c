@@ -56,7 +56,7 @@ static boolean process_file(char *file_name) {
 
     struct Macro_Table *head = NULL;
 
-    struct Data_Table *data_head = NULL;
+    struct Data_Table *data_head = NULL, *curr;
 
     char *new_name = strcat_name(file_name, ".am"); /* Using strcat_name function from "utils.c" to create the new name. */
 
@@ -143,24 +143,40 @@ static boolean process_file(char *file_name) {
         return FALSE;
 
     }
-
     
 
-    for (line = 1; fgets(st, MAX_LINE, am) != NULL; line++) {
+    printf("Preprocessor worked!\n");
+    
+    rewind(am);
 
-        if(!firstpass_line(st, line, data_head, &IC, &DC, &counter))
+    for (line = 1; fgets(st, MAX_LINE, am) != NULL; line++) {
+  		printf("\nfp line: %d, counter = %d\n", line, counter);
+
+        if(!firstpass_line(st, line, &data_head, &IC, &DC, &counter))
 
             firpass = FALSE;
 
     }
 
-
+	printf("First pass %s\n", firpass ? "finished succesfully!\n" : "failed.\n");
 
     rewind(am); /* Before the second pass, set the file position to the beginning of the file. */
 
+	
+	curr = data_head;
+	while(curr != NULL){
+		if(getType(curr) == 'c');
+		else 
+			setValue(curr, getValue(curr) + IC);
+		curr = getNext(curr);
+	}
+	
+	if (firpass) {
+		print_nodes(data_head);
+	}
+	
 
-
-    secpass = make_code_binary(am, data_head, &IC, &DC, &counter);
+    secpass = make_code_binary(am, &data_head, &IC, &DC, &counter);
 
     if (!firpass) {
 

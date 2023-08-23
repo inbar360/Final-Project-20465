@@ -88,7 +88,7 @@ char *getData(struct Data_Table *table);
 
 /* This function returns the machine words of the current table. */
 
-char (*getBinary(struct Data_Table *table))[BITS];
+char (*getBinary(struct Data_Table *table))[BITS+1];
 
 
 
