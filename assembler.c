@@ -143,13 +143,17 @@ static boolean process_file(char *file_name) {
         return FALSE;
 
     }
+
     
 
     printf("Preprocessor worked!\n");
+
     
+
     rewind(am);
 
     for (line = 1; fgets(st, MAX_LINE, am) != NULL; line++) {
+
   		printf("\nfp line: %d, counter = %d\n", line, counter);
 
         if(!firstpass_line(st, line, &data_head, &IC, &DC, &counter))
@@ -163,17 +167,30 @@ static boolean process_file(char *file_name) {
     rewind(am); /* Before the second pass, set the file position to the beginning of the file. */
 
 	
+
 	curr = data_head;
+
 	while(curr != NULL){
+		printf("val=%d, type='%c'\n", getValue(curr), getType(curr));
+
 		if(getType(curr) == 'c');
+
 		else 
+
 			setValue(curr, getValue(curr) + IC);
+
 		curr = getNext(curr);
+
 	}
+
 	
+
 	if (firpass) {
+
 		print_nodes(data_head);
+
 	}
+
 	
 
     secpass = make_code_binary(am, &data_head, &IC, &DC, &counter);

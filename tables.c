@@ -12,9 +12,9 @@ struct Data_Table{
 
     char type;
 
-    char data[LABEL_LENGTH];
+    char *data;
 
-    char binary[MAX_MEMORY][BITS+1];
+    char *binary[MAX_MEMORY];
 
     struct Data_Table *next;
 
@@ -28,7 +28,11 @@ struct Data_Table{
 
 struct Data_Table *create_table() {
 
-    struct Data_Table *table = (struct Data_Table *)malloc(sizeof(struct Data_Table));
+    struct Data_Table *table;
+    int i;
+    printf("got to create_table.\n");
+    table = (struct Data_Table *)malloc(sizeof(struct Data_Table));
+    
 
     if (!table) return NULL;
 
@@ -37,10 +41,10 @@ struct Data_Table *create_table() {
     table->value = 0;
 
     table->type = '\0';
-
-    memset(table->data, '\0', LABEL_LENGTH);
-
-    memset(table->binary, 0, sizeof(table->binary));
+    table->data = NULL;
+    for (i = 0; i < MAX_MEMORY; i++) {
+    	table->binary[i] = NULL;
+    }
 
     table->next = NULL;
 
@@ -78,15 +82,27 @@ void setType(struct Data_Table *table, char type) {
 
 
 
-void setData(struct Data_Table *table, char data[]) {
+void setData(struct Data_Table *table, char *data) {
 
-    int i;
+    if (!data) {
 
-    for (i = 0; i < strlen(data); i++) {
+		table->data = NULL;
 
-        table->data[i] = data[i];
+		return;
 
-    }
+	}
+
+	table->data = (char *)malloc((strlen(data)+1)*sizeof(char));
+
+	if (!table->data) { /* If the memory allocation failed, exit. */
+
+		printf("Error: Memory allocation failed.\n");
+
+		exit(1);
+
+	}
+
+	strcpy(table->data, data); /* Copy the given name to table's name. */
 
 }
 
@@ -95,15 +111,19 @@ void setData(struct Data_Table *table, char data[]) {
 void setBinary(struct Data_Table *table, char binary[1024][BITS+1], int len) {
 
     int i;
-    printf("bin[0] = %s, bin[1] = %s\n", binary[0], binary[1]);
+    
 
     for (i = 0; i < len; i++) {
-    	printf("binary[i]: '%s', %d, %d\n", binary[i], strlen(binary[i]), !table);
+
+    	table->binary[i] = (char *)malloc(BITS+1);
+    	if(!table->binary[i]) {
+    		printf("Error: Memory allocation failed.\n");
+    		exit(1);
+    	}
+
     	table->binary[i][BITS] = '\0';
-    	
 
         strcpy(table->binary[i], binary[i]);
-        printf("after: '%s'\n", table->binary[i]);
 
     }
 
@@ -153,7 +173,7 @@ char *getData(struct Data_Table *table) {
 
 
 
-char (*getBinary(struct Data_Table *table))[BITS+1] {
+char **getBinary(struct Data_Table *table) {
 
     return table->binary;
 
@@ -176,17 +196,50 @@ struct Data_Table *getNext(struct Data_Table *table) {
 void free_data_table(struct Data_Table **head) {
 
     struct Data_Table *next;
+    int i;
 
 
 
     while (*head != NULL) {
+    	i = 0;
+    
 
         next = (*head)->next;
+        free((*head)->data);
+        while ((*head)->binary[i]) {
+        	free((*head)->binary[i]);
+        	i++;
+        }
+         
 
         free(*head);
 
         *head = next;
 
     }
+
+}
+
+
+/**** Other functions that are used regarding the data table: ****/
+boolean in_list(struct Data_Table *dt, char *str) {
+
+    struct Data_Table *dt1= dt;
+
+
+
+    while(dt1 && dt1->data) { /* While dt1 is not NULL */
+
+        if(strcmp(dt1->data, str) == 0) { /* If the string appears in the list, return TRUE. */
+
+            return TRUE;
+
+        }
+
+        dt1 = dt1->next; /* Set dt1 to the next in the list. */
+
+    }
+
+    return FALSE; /* Return FALSE if did not encounter str in the list. */
 
 }

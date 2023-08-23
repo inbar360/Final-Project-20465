@@ -2,6 +2,10 @@
 
 
 
+#define COMP(name, op) (strcmp(name, op) == 0)
+
+
+
 struct Macro_Table {
 
     char *name; /* The macro name. */
@@ -41,8 +45,6 @@ void setmName (struct Macro_Table *table, char *name) {
 		return;
 
 	}
-
-	printf("name is: \"%s\"\n", name);
 
 	table->name = (char *)malloc((strlen(name)+1)*sizeof(char));
 
@@ -115,8 +117,6 @@ boolean name_exists(struct Macro_Table *head, char *name) {
     /* Going over the list, checking if the name already exists. */
 
 	while (head && head->name) {
-
-		printf("mcr name: \"%s\"\n", head->name);
 
 		if (strcmp(head->name, name) == 0) return TRUE;
 

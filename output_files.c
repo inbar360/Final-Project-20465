@@ -136,7 +136,7 @@ static boolean create_ext(char *name, struct Data_Table *head) {
 
         if (getType(curr) == 'x') { /* If the current type is 'x', meaning extern, printf the name + value. */
 
-            fprintf(ext, "%s %d", getData(curr), getValue(curr));
+            fprintf(ext, "%s %d\n", getData(curr), getValue(curr));
 
         }
 
@@ -160,7 +160,7 @@ static boolean create_ob(char *name, int ic, int dc, struct Data_Table *head) {
 
     FILE *ob;
 
-    char *new_name = strcat_name(name, ".ob"), (*data)[BITS+1]; /* Using strcat_name function from "utils.c" to create the new name. */
+    char *new_name = strcat_name(name, ".ob"), **data; /* Using strcat_name function from "utils.c" to create the new name. */
 
     int i;
 
@@ -196,9 +196,11 @@ static boolean create_ob(char *name, int ic, int dc, struct Data_Table *head) {
 
         for (i = 0; i < getLength(curr); i++) { /* Go over the data. */
 
-            if (getType(curr) == 'f' || getType(curr) == 'F')
+            if ((getType(curr) == 'f' || getType(curr) == 'F') && data[i]) {
 
                 base64print(ob, data[i]); /* Print the data in base64. */
+             	fprintf(ob, " '%s'\n", data[i]);   
+			}                
 
         }
 
@@ -216,9 +218,11 @@ static boolean create_ob(char *name, int ic, int dc, struct Data_Table *head) {
 
         for (i = 0; i < getLength(curr); i++) { /* Go over the data. */
 
-            if (getType(curr) == 's' || getType(curr) == 'e' || getType(curr) == 'd' || getType(curr) == 'x' || getType(curr) == 'n')
+            if ((getType(curr) == 's' || getType(curr) == 'e' || getType(curr) == 'd' || getType(curr) == 'x' || getType(curr) == 'n') && data[i]) {
 
                 base64print(ob, data[i]); /* Print the data in base64. */
+                fprintf(ob, " %s\n", data[i]);
+            }
 
         }
 

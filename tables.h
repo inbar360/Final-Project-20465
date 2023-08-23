@@ -46,7 +46,7 @@ void setType(struct Data_Table *table, char type);
 
 /* This function sets the data of the current table to the given data. */
 
-void setData(struct Data_Table *table, char data[]);
+void setData(struct Data_Table *table, char *data);
 
 
 
@@ -88,7 +88,7 @@ char *getData(struct Data_Table *table);
 
 /* This function returns the machine words of the current table. */
 
-char (*getBinary(struct Data_Table *table))[BITS+1];
+char **getBinary(struct Data_Table *table);
 
 
 
@@ -100,9 +100,15 @@ struct Data_Table *getNext(struct Data_Table *table);
 
 
 
+int label_length(char *st);
+
+
+
 /* This function frees each Data_Table nodes attributes, and then the node itself. */
 
 void free_data_table(struct Data_Table **head);
+
+boolean in_list(struct Data_Table *dt, char *str);
 
 
 
