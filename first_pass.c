@@ -46,7 +46,7 @@ boolean firstpass_line(char st[], int line, struct Data_Table **head, int *IC, i
 
     	
 
-    else {
+    else{
 
       res = add_extern_data(st, line, &head, DC, counter);
 
@@ -56,10 +56,15 @@ boolean firstpass_line(char st[], int line, struct Data_Table **head, int *IC, i
 
         res = make_memory_of_command(st, line, &head, IC, counter);
 
-        printf("after make_memory_of_command res=%d, counter = %d\n", res, *counter);
+        printf("after make_memory_of_command res=%d, counter = %d\n", res, *counter);     
 
       }
 
+    }
+    if(res == 2){
+        res = add_data_data(st, line, &head, DC, counter);
+        if(res == 2)
+            res = add_data_data(st, line, &head, DC, counter);
     }
     
      if(res == 3 || res == 2)
