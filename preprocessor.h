@@ -16,6 +16,8 @@
 
 #include "macro.h"
 
+#include "pass_functions.h"
+
 
 
 #define MAX_LINE 81

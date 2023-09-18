@@ -108,6 +108,8 @@ int label_length(char *st);
 
 void free_data_table(struct Data_Table **head);
 
+
+
 boolean in_list(struct Data_Table *dt, char *str);
 
 

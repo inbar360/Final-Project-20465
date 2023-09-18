@@ -12,8 +12,6 @@ boolean make_code_binary(FILE *from, struct Data_Table **data_head, int *IC, int
 
     for (line = 1; fgets(st, MAX_LINE, from) != NULL; line++) {
 
-        printf("\nline: %d\n", line);
-
         curr_node = *data_head;
 
         mark_label_entry(st, line, &data_head, counter);
@@ -32,11 +30,9 @@ boolean make_code_binary(FILE *from, struct Data_Table **data_head, int *IC, int
 
         
 
-        printf("reached make_command.\n");
+        
 
         res = make_command(st, &curr_node, line, &data_head, counter);
-
-        printf("finished make_command.\n");
 
         if(res == 1 && getType(curr_node) == 'E') {
 
@@ -52,8 +48,6 @@ boolean make_code_binary(FILE *from, struct Data_Table **data_head, int *IC, int
 
           errors = 1;
 
-        printf("line %d: errors = %d\n", line, errors);
-
     }
 
 	
@@ -63,3 +57,6 @@ boolean make_code_binary(FILE *from, struct Data_Table **data_head, int *IC, int
     return TRUE;
 
 }
+
+
+

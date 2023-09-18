@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
 
     for (i = 1; i < argc; i++) {
 
-    	printf("%s\n", argv[i]);
+    	printf("name of file: \"%s.as\"\n", argv[i]);
 
         printf("%s\n", process_file(argv[i]) ? "File process finished succesfully!\n" : "File process failed.\n");
 
@@ -124,7 +124,7 @@ static boolean process_file(char *file_name) {
 
 
 
-    prepro = preprocess(file, new_name, &head, am);
+    prepro = preprocess(file, new_name, &head, am); /* Calling preprocessor. */
 
     if (!prepro) {
 
@@ -154,24 +154,19 @@ static boolean process_file(char *file_name) {
 
     for (line = 1; fgets(st, MAX_LINE, am) != NULL; line++) {
 
-  		printf("\nfp line: %d, counter = %d\n", line, counter);
-
-        if(!firstpass_line(st, line, &data_head, &IC, &DC, &counter))
+        if(!firstpass_line(st, line, &data_head, &IC, &DC, &counter)) /* call firstpass_line for each line of the file. */
 
             firpass = FALSE;
 
     }
 
-	printf("First pass %s\n", firpass ? "finished succesfully!\n" : "failed.\n");
+	printf("First pass of \"%s\" %s\n", new_name, firpass ? "finished succesfully!" : "failed.");
 
     rewind(am); /* Before the second pass, set the file position to the beginning of the file. */
-
-	
 
 	curr = data_head;
 
 	while(curr != NULL){
-		printf("val=%d, type='%c'\n", getValue(curr), getType(curr));
 
 		if(getType(curr) == 'c');
 
@@ -185,19 +180,11 @@ static boolean process_file(char *file_name) {
 
 	
 
-	if (firpass) {
-
-		print_nodes(data_head);
-
-	}
-
-	
-
     secpass = make_code_binary(am, &data_head, &IC, &DC, &counter);
 
-    if (!firpass) {
+    
 
-        printf("First pass of file \"%s\" did not work.\n", new_name);
+    if (!firpass) {
 
         free(new_name);
 
@@ -237,11 +224,15 @@ static boolean process_file(char *file_name) {
 
     }
 
-
+	
 
     else {
 
+    	printf("Second pass of file \"%s\" finished succesfully!\n", new_name);
+
         if(!create_files(file_name, IC, DC, data_head)) {
+
+        	printf("Creating output files for \"%s\" failed.\n", new_name);
 
             free(new_name);
 

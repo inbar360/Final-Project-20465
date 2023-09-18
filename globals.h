@@ -14,6 +14,12 @@
 
 #define MAX_LINE 81
 
+#define TWO 2
+
+#define THREE 3
+
+#define FOUR 4
+
 #define BITS 12
 
 #define MAX_MEMORY 1024
@@ -34,6 +40,31 @@ typedef enum {
   FALSE = 0, TRUE = 1
 
 } boolean;
+
+
+
+typedef enum registers{
+
+	r0 = 0,
+
+	r1,
+
+	r2,
+
+	r3,
+
+	r4,
+
+	r5,
+
+	r6,
+
+	r7,
+
+	NON_REG = -1
+
+} reg;
+
 
 
 #endif

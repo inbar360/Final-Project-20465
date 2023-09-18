@@ -106,17 +106,26 @@ void base64print(FILE *obj, char bin[]) {
 
 	second = base_chars[num]; /* Setting second to the char representing the last 6 bits. */
 
-	fprintf(obj, "%c%c", first, second); /* Printing both chars to the object file. */
+	fprintf(obj, "%c%c\n", first, second); /* Printing both chars to the object file. */
 
 }
 
+
+
 int label_length(char *st) {
+
 	int l = 0;
+
 	while (l < 32 && st[l] && isalnum(st[l])) {
+
 		l++;
+
 	}
+
 	
+
 	return l;
+
 }
 
 

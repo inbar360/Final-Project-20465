@@ -70,6 +70,14 @@ boolean preprocess(FILE *file, char *name, struct Macro_Table **head, FILE *to) 
 
 
 
+/* This function checks if the given macro namro name is not a saved name (directive/instruction).
+
+   Returns: TRUE if the name is not a saved name, FALSE otherwise. */
+
+boolean check_macro_name(char *name);
+
+
+
 /* Given a file, and the macro table, this function goes over lines from the file,
 
    until encountering "endmcro".
@@ -163,6 +171,16 @@ static int process_line(FILE *from, char *line, struct Macro_Table **table, FILE
             return FALSE;
 
         }
+
+        if (!check_macro_name(mcr_name)) {
+
+        	printf("Error on line %d: Macro name is a saved name\n", linepos);
+
+			free(mcr_name);
+
+			return FALSE;
+
+		}
 
         setmName((*table), mcr_name); /* Set the current macro name to mcr_name. */
 
@@ -353,3 +371,24 @@ char *get_macro_value(FILE *from, struct Macro_Table **table, char *name) {
     return val; /* Return the val. */
 
 }
+
+
+
+boolean check_macro_name(char *name) {
+
+	char *op = opcode_in_binary(name);
+
+	if (op != NULL)
+
+		return FALSE;
+
+	if (strcmp(name, ".entry") == 0 || strcmp(name, ".extern") == 0 || strcmp(name, ".data") == 0 || strcmp(name, ".string") == 0)
+
+		return FALSE;
+
+		
+
+	return TRUE;
+
+}
+

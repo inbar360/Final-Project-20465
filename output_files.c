@@ -2,6 +2,10 @@
 
 
 
+int xc = 0; /* Extern counter */
+
+
+
 /* This function creates the entry file and writes into it. */
 
 static boolean create_ent(char *name, struct Data_Table *head);
@@ -33,6 +37,8 @@ static boolean create_ent(char *name, struct Data_Table *head) {
     FILE *ent;
 
     struct Data_Table *curr = head;
+
+    boolean flag = FALSE;
 
     char *new_name = strcat_name(name, ".ent"); /* Using strcat_name function from "utils.c" to create the new name. */
 
@@ -72,6 +78,8 @@ static boolean create_ent(char *name, struct Data_Table *head) {
 
         if (getType(curr) == 'e' || getType(curr) == 'F') { /* If the current type is 'e', meaning entry, print the name + value. */
 
+            flag = TRUE;
+
             fprintf(ent, "%s %d\n", getData(curr), getValue(curr));
 
         }
@@ -80,7 +88,19 @@ static boolean create_ent(char *name, struct Data_Table *head) {
 
     } while(curr); /* While curr is not NULL. */
 
+	
 
+	if (!flag) {
+
+		REMOVE_FILE(ent, new_name);
+
+		free(new_name);
+
+		return TRUE;
+
+	}
+
+	
 
     free(new_name);
 
@@ -97,6 +117,8 @@ static boolean create_ext(char *name, struct Data_Table *head) {
     FILE *ext;
 
     struct Data_Table *curr = head;
+
+    boolean flag = FALSE;
 
     char *new_name = strcat_name(name, ".ext"); /* Using strcat_name function from "utils.c" to create the new name. */
 
@@ -136,6 +158,10 @@ static boolean create_ext(char *name, struct Data_Table *head) {
 
         if (getType(curr) == 'x') { /* If the current type is 'x', meaning extern, printf the name + value. */
 
+            flag = TRUE;
+
+            xc++;
+
             fprintf(ext, "%s %d\n", getData(curr), getValue(curr));
 
         }
@@ -144,7 +170,17 @@ static boolean create_ext(char *name, struct Data_Table *head) {
 
     } while(curr); /* While curr is not NULL. */
 
+	
 
+	if (!flag) {
+
+		REMOVE_FILE(ext, new_name);
+
+		free(new_name);
+
+		return TRUE;
+
+	}
 
     free(new_name);
 
@@ -156,9 +192,13 @@ static boolean create_ext(char *name, struct Data_Table *head) {
 
 
 
+
+
 static boolean create_ob(char *name, int ic, int dc, struct Data_Table *head) {
 
     FILE *ob;
+
+    boolean flag = FALSE;
 
     char *new_name = strcat_name(name, ".ob"), **data; /* Using strcat_name function from "utils.c" to create the new name. */
 
@@ -186,7 +226,7 @@ static boolean create_ob(char *name, int ic, int dc, struct Data_Table *head) {
 
     /* Print the IC and DC as the headline for the object file. */
 
-    fprintf(ob, "%d %d\n", ic, dc); 
+    fprintf(ob, "%d %d\n", ic, dc-xc); /* We count externs as data but we don't print them. */
 
 
 
@@ -194,12 +234,16 @@ static boolean create_ob(char *name, int ic, int dc, struct Data_Table *head) {
 
         data = getBinary(curr); /* Get the binary into data. */
 
+        
+
         for (i = 0; i < getLength(curr); i++) { /* Go over the data. */
 
             if ((getType(curr) == 'f' || getType(curr) == 'F') && data[i]) {
 
-                base64print(ob, data[i]); /* Print the data in base64. */
-             	fprintf(ob, " '%s'\n", data[i]);   
+                flag = TRUE;
+
+                base64print(ob, data[i]); /* Print the data in base64. */ 
+
 			}                
 
         }
@@ -220,8 +264,10 @@ static boolean create_ob(char *name, int ic, int dc, struct Data_Table *head) {
 
             if ((getType(curr) == 's' || getType(curr) == 'e' || getType(curr) == 'd' || getType(curr) == 'x' || getType(curr) == 'n') && data[i]) {
 
+                flag = TRUE;
+
                 base64print(ob, data[i]); /* Print the data in base64. */
-                fprintf(ob, " %s\n", data[i]);
+
             }
 
         }
@@ -230,7 +276,19 @@ static boolean create_ob(char *name, int ic, int dc, struct Data_Table *head) {
 
     }
 
+	
 
+	if (!flag) {
+
+		REMOVE_FILE(ob, new_name);
+
+		free(new_name);
+
+		return TRUE;
+
+	}
+
+	
 
     free(new_name); 
 

@@ -29,9 +29,11 @@ struct Data_Table{
 struct Data_Table *create_table() {
 
     struct Data_Table *table;
+
     int i;
-    printf("got to create_table.\n");
+
     table = (struct Data_Table *)malloc(sizeof(struct Data_Table));
+
     
 
     if (!table) return NULL;
@@ -41,9 +43,13 @@ struct Data_Table *create_table() {
     table->value = 0;
 
     table->type = '\0';
+
     table->data = NULL;
+
     for (i = 0; i < MAX_MEMORY; i++) {
+
     	table->binary[i] = NULL;
+
     }
 
     table->next = NULL;
@@ -111,14 +117,19 @@ void setData(struct Data_Table *table, char *data) {
 void setBinary(struct Data_Table *table, char binary[1024][BITS+1], int len) {
 
     int i;
+
     
 
     for (i = 0; i < len; i++) {
 
     	table->binary[i] = (char *)malloc(BITS+1);
+
     	if(!table->binary[i]) {
+
     		printf("Error: Memory allocation failed.\n");
+
     		exit(1);
+
     	}
 
     	table->binary[i][BITS] = '\0';
@@ -196,20 +207,29 @@ struct Data_Table *getNext(struct Data_Table *table) {
 void free_data_table(struct Data_Table **head) {
 
     struct Data_Table *next;
+
     int i;
 
 
 
     while (*head != NULL) {
+
     	i = 0;
+
     
 
         next = (*head)->next;
+
         free((*head)->data);
+
         while ((*head)->binary[i]) {
+
         	free((*head)->binary[i]);
+
         	i++;
+
         }
+
          
 
         free(*head);
@@ -221,7 +241,11 @@ void free_data_table(struct Data_Table **head) {
 }
 
 
+
+
+
 /**** Other functions that are used regarding the data table: ****/
+
 boolean in_list(struct Data_Table *dt, char *str) {
 
     struct Data_Table *dt1= dt;
@@ -243,3 +267,4 @@ boolean in_list(struct Data_Table *dt, char *str) {
     return FALSE; /* Return FALSE if did not encounter str in the list. */
 
 }
+

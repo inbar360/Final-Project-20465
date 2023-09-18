@@ -19,10 +19,10 @@
 #define END_CHAR(string, index) (string[index] == '\n' || string[index] == '\0')
 
 #define SKIP_WHITE(string, index) \
-   for (;string[(index)] && (IS_WHITE(string, index)); (++(index)));   
+      for (;string[(index)] && (IS_WHITE(string, index)); (++(index)));   
 
 #define SKIP_NON_WHITE(string, index) \
-    for (;string[(index)] && !IS_WHITE(string, index) && !END_CHAR(string, index); (++(index)));
+		for (;string[(index)] && !IS_WHITE(string, index) && !END_CHAR(string, index); (++(index)));
 
 #define REMOVE_FILE(file, name) \
 
